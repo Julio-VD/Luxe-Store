@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>LUXE | Terminal de Venta</title>
+
+    <!-- BOOTSTRAP -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- ICONOS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet"
+          href="estilos.css">
+
+</head>
+
+
+<body class="sistema-body">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+    <div class="sidebar-logo">
+
+        <h2>LUXE</h2>
+
+        <small>
+            TERMINAL DE VENTAS
+        </small>
+
+    </div>
+
+
+    <div class="usuario-sidebar">
+
+        <div class="avatar">
+            <i class="bi bi-person-fill"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Juan Pérez
+            </strong>
+
+            <small>
+                Vendedor
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <nav class="menu-lateral">
+
+        <a href="#"
+           class="menu-item activo"
+           onclick="mostrarSeccion('terminal', this)">
+
+            <i class="bi bi-cart3"></i>
+
+            Terminal de Venta
+
+        </a>
+
+
+        <a href="#"
+           class="menu-item"
+           onclick="mostrarSeccion('catalogo', this)">
+
+            <i class="bi bi-grid"></i>
+
+            Catálogo
+
+        </a>
+
+
+        <a href="#"
+           class="menu-item"
+           onclick="mostrarSeccion('misVentas', this)">
+
+            <i class="bi bi-receipt"></i>
+
+            Mis Ventas
+
+        </a>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+        <a href="login.html"
+           class="menu-item cerrar-sesion">
+
+            <i class="bi bi-box-arrow-left"></i>
+
+            Cerrar sesión
+
+        </a>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= CONTENIDO ================= -->
+
+<main class="contenido-principal">
+
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <div>
+
+            <h5 id="tituloSeccion">
+                Terminal de Venta
+            </h5>
+
+            <small>
+                Punto de venta · LUXE
+            </small>
+
+        </div>
+
+
+        <div class="topbar-user">
+
+            <span>
+                Juan Pérez
+            </span>
+
+            <div class="avatar-small">
+                JP
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ================================================= -->
+    <!-- TERMINAL -->
+    <!-- ================================================= -->
+
+    <section id="terminal"
+             class="seccion-sistema activa">
+
+        <div class="container-fluid p-4">
+
+            <div class="mb-4">
+
+                <h2>
+                    Terminal de Venta
+                </h2>
+
+                <p class="text-muted">
+                    Busca productos y registra la venta del cliente.
+                </p>
+
+            </div>
+
+
+            <div class="row g-4">
+
+
+                <!-- PRODUCTOS -->
+
+                <div class="col-xl-8">
+
+                    <div class="card-luxe">
+
+                        <div class="mb-3">
+
+                            <div class="input-group input-group-lg">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    id="busquedaPOS"
+                                    class="form-control"
+                                    placeholder="Buscar prenda por nombre o código..."
+                                    onkeyup="buscarPOS()">
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="row g-3"
+                             id="productosPOS">
+
+
+                            <!-- PRODUCTO 1 -->
+
+                            <div class="col-md-6 col-xl-4 producto-pos"
+                                 data-nombre="polo algodon premium">
+
+                                <div class="producto-card">
+
+                                    <div class="producto-imagen">
+                                        <i class="bi bi-tshirt"></i>
+                                    </div>
+
+                                    <div class="p-3">
+
+                                        <small class="text-muted">
+                                            PL001
+                                        </small>
+
+                                        <h6>
+                                            Polo Algodón Premium
+                                        </h6>
+
+                                        <h5 class="precio-producto">
+                                            S/ 45.00
+                                        </h5>
+
+                                        <small>
+                                            Stock: 25 · Talla M
+                                        </small>
+
+                                        <button
+                                            class="btn btn-luxe w-100 mt-3"
+                                            onclick="agregarProducto(
+                                            'Polo Algodón Premium',
+                                            45)">
+
+                                            <i class="bi bi-plus-lg"></i>
+                                            Agregar
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PRODUCTO 2 -->
+
+                            <div class="col-md-6 col-xl-4 producto-pos"
+                                 data-nombre="camisa oxford slim">
+
+                                <div class="producto-card">
+
+                                    <div class="producto-imagen">
+                                        <i class="bi bi-person-standing"></i>
+                                    </div>
+
+                                    <div class="p-3">
+
+                                        <small class="text-muted">
+                                            CM002
+                                        </small>
+
+                                        <h6>
+                                            Camisa Oxford Slim
+                                        </h6>
+
+                                        <h5 class="precio-producto">
+                                            S/ 75.00
+                                        </h5>
+
+                                        <small>
+                                            Stock: 12 · Talla L
+                                        </small>
+
+                                        <button
+                                            class="btn btn-luxe w-100 mt-3"
+                                            onclick="agregarProducto(
+                                            'Camisa Oxford Slim',
+                                            75)">
+
+                                            <i class="bi bi-plus-lg"></i>
+                                            Agregar
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PRODUCTO 3 -->
+
+                            <div class="col-md-6 col-xl-4 producto-pos"
+                                 data-nombre="pantalon denim clasico">
+
+                                <div class="producto-card">
+
+                                    <div class="producto-imagen">
+                                        <i class="bi bi-person-standing-dress"></i>
+                                    </div>
+
+                                    <div class="p-3">
+
+                                        <small class="text-muted">
+                                            PA003
+                                        </small>
+
+                                        <h6>
+                                            Pantalón Denim Clásico
+                                        </h6>
+
+                                        <h5 class="precio-producto">
+                                            S/ 95.00
+                                        </h5>
+
+                                        <small>
+                                            Stock: 4 · Talla 32
+                                        </small>
+
+                                        <button
+                                            class="btn btn-luxe w-100 mt-3"
+                                            onclick="agregarProducto(
+                                            'Pantalón Denim Clásico',
+                                            95)">
+
+                                            <i class="bi bi-plus-lg"></i>
+                                            Agregar
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PRODUCTO 4 -->
+
+                            <div class="col-md-6 col-xl-4 producto-pos"
+                                 data-nombre="polo oversize luxe">
+
+                                <div class="producto-card">
+
+                                    <div class="producto-imagen">
+                                        <i class="bi bi-tshirt"></i>
+                                    </div>
+
+                                    <div class="p-3">
+
+                                        <small class="text-muted">
+                                            PL004
+                                        </small>
+
+                                        <h6>
+                                            Polo Oversize Luxe
+                                        </h6>
+
+                                        <h5 class="precio-producto">
+                                            S/ 55.00
+                                        </h5>
+
+                                        <small>
+                                            Stock: 18 · Talla L
+                                        </small>
+
+                                        <button
+                                            class="btn btn-luxe w-100 mt-3"
+                                            onclick="agregarProducto(
+                                            'Polo Oversize Luxe',
+                                            55)">
+
+                                            <i class="bi bi-plus-lg"></i>
+                                            Agregar
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PRODUCTO 5 -->
+
+                            <div class="col-md-6 col-xl-4 producto-pos"
+                                 data-nombre="camisa casual">
+
+                                <div class="producto-card">
+
+                                    <div class="producto-imagen">
+                                        <i class="bi bi-person-standing"></i>
+                                    </div>
+
+                                    <div class="p-3">
+
+                                        <small class="text-muted">
+                                            CM005
+                                        </small>
+
+                                        <h6>
+                                            Camisa Casual
+                                        </h6>
+
+                                        <h5 class="precio-producto">
+                                            S/ 69.90
+                                        </h5>
+
+                                        <small>
+                                            Stock: 8 · Talla M
+                                        </small>
+
+                                        <button
+                                            class="btn btn-luxe w-100 mt-3"
+                                            onclick="agregarProducto(
+                                            'Camisa Casual',
+                                            69.90)">
+
+                                            <i class="bi bi-plus-lg"></i>
+                                            Agregar
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PRODUCTO 6 -->
+
+                            <div class="col-md-6 col-xl-4 producto-pos"
+                                 data-nombre="pantalon cargo">
+
+                                <div class="producto-card">
+
+                                    <div class="producto-imagen">
+                                        <i class="bi bi-person-standing-dress"></i>
+                                    </div>
+
+                                    <div class="p-3">
+
+                                        <small class="text-muted">
+                                            PA006
+                                        </small>
+
+                                        <h6>
+                                            Pantalón Cargo
+                                        </h6>
+
+                                        <h5 class="precio-producto">
+                                            S/ 89.90
+                                        </h5>
+
+                                        <small>
+                                            Stock: 10 · Talla 32
+                                        </small>
+
+                                        <button
+                                            class="btn btn-luxe w-100 mt-3"
+                                            onclick="agregarProducto(
+                                            'Pantalón Cargo',
+                                            89.90)">
+
+                                            <i class="bi bi-plus-lg"></i>
+                                            Agregar
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ================================================= -->
+                <!-- TICKET -->
+                <!-- ================================================= -->
+
+                <div class="col-xl-4">
+
+                    <div class="ticket-card">
+
+                        <div class="ticket-header">
+
+                            <div>
+
+                                <h5>
+                                    Ticket de Venta
+                                </h5>
+
+                                <small>
+                                    #TLX-00246
+                                </small>
+
+                            </div>
+
+                            <i class="bi bi-receipt"></i>
+
+                        </div>
+
+
+                        <div id="listaTicket"
+                             class="ticket-items">
+
+                            <div class="ticket-vacio">
+
+                                <i class="bi bi-cart-x"></i>
+
+                                <p>
+                                    No hay productos agregados
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="ticket-total">
+
+                            <span>
+                                TOTAL
+                            </span>
+
+                            <strong id="totalVenta">
+                                S/ 0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="mt-4">
+
+                            <label class="form-label">
+                                Método de pago
+                            </label>
+
+                            <select
+                                id="metodoPago"
+                                class="form-select">
+
+                                <option>
+                                    Efectivo
+                                </option>
+
+                                <option>
+                                    Tarjeta
+                                </option>
+
+                                <option>
+                                    Yape / Plin
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="mt-3">
+
+                            <label class="form-label">
+                                Monto recibido
+                            </label>
+
+                            <input
+                                type="number"
+                                id="montoRecibido"
+                                class="form-control"
+                                placeholder="S/ 0.00">
+
+                        </div>
+
+
+                        <div class="vuelto-box mt-3">
+
+                            <span>
+                                Vuelto
+                            </span>
+
+                            <strong id="vuelto">
+                                S/ 0.00
+                            </strong>
+
+                        </div>
+
+
+                        <button
+                            class="btn btn-success w-100 py-3 mt-3"
+                            onclick="procesarVenta()">
+
+                            <i class="bi bi-check-circle me-2"></i>
+
+                            PROCESAR VENTA
+
+                        </button>
+
+
+                        <button
+                            class="btn btn-light border w-100 mt-2"
+                            onclick="cancelarVenta()">
+
+                            Cancelar venta
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- CATALOGO -->
+    <!-- ================================================= -->
+
+    <section id="catalogo"
+             class="seccion-sistema">
+
+        <div class="container-fluid p-4">
+
+            <div class="mb-4">
+
+                <h2>
+                    Catálogo de Prendas
+                </h2>
+
+                <p class="text-muted">
+                    Consulta los productos disponibles.
+                </p>
+
+            </div>
+
+
+            <div class="card-luxe">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Talla</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>PL001</td>
+
+                                <td>
+                                    Polo Algodón Premium
+                                </td>
+
+                                <td>Polos</td>
+
+                                <td>M</td>
+
+                                <td>S/ 45.00</td>
+
+                                <td>
+                                    <span class="badge bg-success">
+                                        25
+                                    </span>
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>CM002</td>
+
+                                <td>
+                                    Camisa Oxford Slim
+                                </td>
+
+                                <td>Camisas</td>
+
+                                <td>L</td>
+
+                                <td>S/ 75.00</td>
+
+                                <td>
+                                    <span class="badge bg-success">
+                                        12
+                                    </span>
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>PA003</td>
+
+                                <td>
+                                    Pantalón Denim Clásico
+                                </td>
+
+                                <td>Pantalones</td>
+
+                                <td>32</td>
+
+                                <td>S/ 95.00</td>
+
+                                <td>
+                                    <span class="badge bg-warning text-dark">
+                                        4
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- MIS VENTAS -->
+    <!-- ================================================= -->
+
+    <section id="misVentas"
+             class="seccion-sistema">
+
+        <div class="container-fluid p-4">
+
+            <div class="mb-4">
+
+                <h2>
+                    Mis Ventas
+                </h2>
+
+                <p class="text-muted">
+                    Historial de ventas realizadas.
+                </p>
+
+            </div>
+
+
+            <div class="card-luxe">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Ticket</th>
+                                <th>Fecha</th>
+                                <th>Productos</th>
+                                <th>Pago</th>
+                                <th>Total</th>
+                                <th>Detalle</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    #TLX-00245
+                                </td>
+
+                                <td>
+                                    03/09/2026
+                                </td>
+
+                                <td>
+                                    3
+                                </td>
+
+                                <td>
+                                    Yape / Plin
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        S/ 269.70
+                                    </strong>
+                                </td>
+
+                                <td>
+
+                                    <button
+                                        class="btn btn-sm btn-luxe"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalVenta">
+
+                                        <i class="bi bi-eye"></i>
+
+                                        Ver
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    #TLX-00243
+                                </td>
+
+                                <td>
+                                    03/09/2026
+                                </td>
+
+                                <td>
+                                    4
+                                </td>
+
+                                <td>
+                                    Efectivo
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        S/ 320.50
+                                    </strong>
+                                </td>
+
+                                <td>
+
+                                    <button
+                                        class="btn btn-sm btn-luxe"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalVenta">
+
+                                        <i class="bi bi-eye"></i>
+
+                                        Ver
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- ================================================= -->
+<!-- MODAL VENTA -->
+<!-- ================================================= -->
+
+<div class="modal fade"
+     id="modalVenta"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Detalle de venta
+                </h5>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <p>
+                    <strong>Ticket:</strong>
+                    #TLX-00245
+                </p>
+
+                <p>
+                    <strong>Fecha:</strong>
+                    03/09/2026
+                </p>
+
+                <hr>
+
+                <p>
+                    Polo Algodón Premium x2
+                </p>
+
+                <p>
+                    Pantalón Denim Clásico x1
+                </p>
+
+                <hr>
+
+                <h5 class="text-end">
+                    Total: S/ 185.00
+                </h5>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cerrar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- BOOTSTRAP -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+<script src="sistema.js"></script>
+
+</body>
+
+</html>
