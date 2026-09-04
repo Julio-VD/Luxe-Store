@@ -1,1895 +1,291 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>LUXE | Administrador</title>
+    <title>LUXE | Iniciar Sesión</title>
 
     <!-- BOOTSTRAP -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- ICONOS -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- CSS -->
-    <link rel="stylesheet"
-          href="estilos.css">
-
+    <!-- CSS PROPIO -->
+    <link rel="stylesheet" href="estilos.css">
 </head>
 
+<body class="login-body">
 
-<body class="sistema-body">
+    <main class="container-fluid">
+        <div class="row min-vh-100">
 
+            <!-- PARTE IZQUIERDA -->
+            <div class="col-lg-7 login-presentacion d-none d-lg-flex">
 
-<!-- ================= SIDEBAR ================= -->
+                <div class="presentacion-contenido">
 
-<div class="sidebar">
-
-    <div class="sidebar-logo">
-
-        <h2>LUXE</h2>
-
-        <small>
-            SISTEMA POS
-        </small>
-
-    </div>
-
-
-    <div class="usuario-sidebar">
-
-        <div class="avatar">
-            <i class="bi bi-person-fill"></i>
-        </div>
-
-        <div>
-
-            <strong>
-                Administrador
-            </strong>
-
-            <small>
-                Administrador
-            </small>
-
-        </div>
-
-    </div>
-
-
-    <nav class="menu-lateral">
-
-        <a href="#"
-           class="menu-item activo"
-           onclick="mostrarSeccion('dashboard', this)">
-
-            <i class="bi bi-grid-1x2-fill"></i>
-
-            Dashboard
-
-        </a>
-
-
-        <a href="#"
-           class="menu-item"
-           onclick="mostrarSeccion('productos', this)">
-
-            <i class="bi bi-box-seam"></i>
-
-            Catálogo de Prendas
-
-        </a>
-
-
-        <a href="#"
-           class="menu-item"
-           onclick="mostrarSeccion('stock', this)">
-
-            <i class="bi bi-clipboard-data"></i>
-
-            Control de Stock
-
-        </a>
-
-
-        <a href="#"
-           class="menu-item"
-           onclick="mostrarSeccion('ventas', this)">
-
-            <i class="bi bi-receipt"></i>
-
-            Historial de Ventas
-
-        </a>
-
-
-        <a href="#"
-           class="menu-item"
-           onclick="mostrarSeccion('usuarios', this)">
-
-            <i class="bi bi-people"></i>
-
-            Usuarios
-
-        </a>
-
-    </nav>
-
-
-    <div class="sidebar-bottom">
-
-        <a href="login.html"
-           class="menu-item cerrar-sesion">
-
-            <i class="bi bi-box-arrow-left"></i>
-
-            Cerrar sesión
-
-        </a>
-
-    </div>
-
-</div>
-
-
-<!-- ================= CONTENIDO ================= -->
-
-<main class="contenido-principal">
-
-
-    <!-- TOPBAR -->
-
-    <header class="topbar">
-
-        <div>
-
-            <h5 id="tituloSeccion">
-                Dashboard
-            </h5>
-
-            <small>
-                Sistema de gestión de ventas · LUXE
-            </small>
-
-        </div>
-
-
-        <div class="topbar-user">
-
-            <span>
-                Administrador
-            </span>
-
-            <div class="avatar-small">
-                A
-            </div>
-
-        </div>
-
-    </header>
-
-
-
-    <!-- ================================================= -->
-    <!-- DASHBOARD -->
-    <!-- ================================================= -->
-
-    <section id="dashboard"
-             class="seccion-sistema activa">
-
-        <div class="container-fluid p-4">
-
-            <div class="mb-4">
-
-                <h2>
-                    Panel de Administrador
-                </h2>
-
-                <p class="text-muted">
-                    Resumen general de las operaciones de Luxe.
-                </p>
-
-            </div>
-
-
-            <!-- CARDS -->
-
-            <div class="row g-3 mb-4">
-
-                <div class="col-xl-3 col-md-6">
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-                            <i class="bi bi-cash-stack"></i>
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Ventas de hoy
-                            </span>
-
-                            <h3>
-                                S/ 1,850.00
-                            </h3>
-
-                            <small>
-                                12 ventas realizadas
-                            </small>
-
-                        </div>
-
+                    <div class="marca-grande">
+                        LUXE
                     </div>
 
-                </div>
-
-
-                <div class="col-xl-3 col-md-6">
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-                            <i class="bi bi-box-seam"></i>
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Productos
-                            </span>
-
-                            <h3>
-                                128
-                            </h3>
-
-                            <small>
-                                Prendas registradas
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-xl-3 col-md-6">
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon warning">
-                            <i class="bi bi-exclamation-triangle"></i>
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Stock bajo
-                            </span>
-
-                            <h3>
-                                8
-                            </h3>
-
-                            <small>
-                                Requieren atención
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-xl-3 col-md-6">
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon success">
-                            <i class="bi bi-graph-up"></i>
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Ventas del mes
-                            </span>
-
-                            <h3>
-                                S/ 24,690
-                            </h3>
-
-                            <small>
-                                Agosto 2026
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- ÚLTIMAS VENTAS -->
-
-            <div class="card-luxe">
-
-                <div class="card-header-luxe">
-
-                    <div>
-
-                        <h5>
-                            Últimas ventas
-                        </h5>
-
-                        <small>
-                            Transacciones recientes
-                        </small>
-
-                    </div>
-
-                    <button
-                        class="btn btn-luxe btn-sm"
-                        onclick="mostrarSeccionPorId('ventas')">
-
-                        Ver historial
-
-                    </button>
-
-                </div>
-
-
-                <div class="table-responsive">
-
-                    <table class="table table-hover align-middle">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>Ticket</th>
-                                <th>Vendedor</th>
-                                <th>Fecha</th>
-                                <th>Método</th>
-                                <th>Total</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            <tr>
-
-                                <td>
-                                    <strong>#TLX-00245</strong>
-                                </td>
-
-                                <td>
-                                    Juan Pérez
-                                </td>
-
-                                <td>
-                                    03/09/2026
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success-subtle text-success">
-                                        Yape / Plin
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        S/ 269.70
-                                    </strong>
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    <strong>#TLX-00244</strong>
-                                </td>
-
-                                <td>
-                                    María López
-                                </td>
-
-                                <td>
-                                    03/09/2026
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-primary-subtle text-primary">
-                                        Tarjeta
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        S/ 180.00
-                                    </strong>
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    <strong>#TLX-00243</strong>
-                                </td>
-
-                                <td>
-                                    Juan Pérez
-                                </td>
-
-                                <td>
-                                    03/09/2026
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-warning-subtle text-warning">
-                                        Efectivo
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        S/ 320.50
-                                    </strong>
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ================================================= -->
-    <!-- PRODUCTOS -->
-    <!-- ================================================= -->
-
-    <section id="productos"
-             class="seccion-sistema">
-
-        <div class="container-fluid p-4">
-
-            <div class="d-flex justify-content-between
-                        align-items-center mb-4">
-
-                <div>
+                    <p class="texto-marca">
+                        SISTEMA DE GESTIÓN DE VENTAS
+                    </p>
+
+                    <div class="linea-dorada"></div>
 
                     <h2>
-                        Catálogo de Prendas
+                        Gestión inteligente para<br>
+                        tu tienda de ropa.
                     </h2>
 
-                    <p class="text-muted">
-                        Gestiona los productos de la tienda.
+                    <p>
+                        Administra productos, inventario y ventas
+                        desde un solo sistema.
                     </p>
 
                 </div>
 
-
-                <button
-                    class="btn btn-luxe"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalProducto">
-
-                    <i class="bi bi-plus-lg me-1"></i>
-
-                    Nueva Prenda
-
-                </button>
-
             </div>
 
 
-            <div class="card-luxe">
+            <!-- LOGIN -->
+            <div class="col-lg-5 d-flex align-items-center justify-content-center">
 
-                <div class="row mb-3">
+                <div class="login-card">
 
-                    <div class="col-md-6">
+                    <div class="text-center mb-4">
 
-                        <div class="input-group">
+                        <div class="logo-login">
+                            LUXE
+                        </div>
 
-                            <span class="input-group-text">
-                                <i class="bi bi-search"></i>
-                            </span>
+                        <p class="text-muted small mb-0">
+                            Sistema POS · Tienda de Ropa
+                        </p>
+
+                    </div>
+
+
+                    <div id="mensajeError"
+                         class="alert alert-danger d-none"
+                         role="alert">
+
+                        <i class="bi bi-exclamation-circle"></i>
+                        Usuario o contraseña incorrectos.
+
+                    </div>
+
+
+                    <form id="formLogin">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Usuario
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    id="usuario"
+                                    class="form-control"
+                                    placeholder="Ingrese su usuario"
+                                    required>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Contraseña
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+
+                                <input
+                                    type="password"
+                                    id="password"
+                                    class="form-control"
+                                    placeholder="Ingrese su contraseña"
+                                    required>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                    onclick="mostrarPassword()">
+
+                                    <i id="iconPassword"
+                                       class="bi bi-eye"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-check mb-4">
 
                             <input
-                                type="text"
-                                id="buscarProducto"
-                                class="form-control"
-                                placeholder="Buscar producto..."
-                                onkeyup="buscarProductos()">
+                                class="form-check-input"
+                                type="checkbox"
+                                id="recordar">
 
+                            <label
+                                class="form-check-label small"
+                                for="recordar">
+
+                                Recordar usuario
+
+                            </label>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-luxe w-100">
+
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+
+                            INICIAR SESIÓN
+
+                        </button>
+
+                    </form>
+
+
+                    <!-- DATOS DE PRUEBA -->
+
+                    <div class="login-demo mt-4">
+
+                        <p class="mb-2 fw-bold">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Usuarios de prueba
+                        </p>
+
+                        <div class="demo-item">
+                            <span>Administrador</span>
+                            <strong>admin / 1234</strong>
+                        </div>
+
+                        <div class="demo-item">
+                            <span>Vendedor</span>
+                            <strong>vendedor / 1234</strong>
                         </div>
 
                     </div>
 
 
-                    <div class="col-md-3">
-
-                        <select class="form-select">
-
-                            <option>
-                                Todas las categorías
-                            </option>
-
-                            <option>
-                                Polos
-                            </option>
-
-                            <option>
-                                Camisas
-                            </option>
-
-                            <option>
-                                Pantalones
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <div class="table-responsive">
-
-                    <table
-                        class="table table-hover align-middle"
-                        id="tablaProductos">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>Código</th>
-                                <th>Prenda</th>
-                                <th>Categoría</th>
-                                <th>Talla</th>
-                                <th>Color</th>
-                                <th>Precio</th>
-                                <th>Stock</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <tr>
-
-                                <td>
-                                    PL001
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        Polo Algodón Premium
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    Polos
-                                </td>
-
-                                <td>
-                                    M
-                                </td>
-
-                                <td>
-                                    Negro
-                                </td>
-
-                                <td>
-                                    S/ 45.00
-                                </td>
-
-                                <td>
-                                    25
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success">
-                                        Disponible
-                                    </span>
-                                </td>
-
-                                <td>
-
-                                    <button
-                                        class="btn btn-sm btn-outline-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEditar">
-
-                                        <i class="bi bi-pencil"></i>
-
-                                    </button>
-
-
-                                    <button
-                                        class="btn btn-sm btn-outline-danger"
-                                        onclick="inhabilitarProducto()">
-
-                                        <i class="bi bi-slash-circle"></i>
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    CM002
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        Camisa Oxford Slim
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    Camisas
-                                </td>
-
-                                <td>
-                                    L
-                                </td>
-
-                                <td>
-                                    Blanco
-                                </td>
-
-                                <td>
-                                    S/ 75.00
-                                </td>
-
-                                <td>
-                                    12
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success">
-                                        Disponible
-                                    </span>
-                                </td>
-
-                                <td>
-
-                                    <button
-                                        class="btn btn-sm btn-outline-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEditar">
-
-                                        <i class="bi bi-pencil"></i>
-
-                                    </button>
-
-                                    <button
-                                        class="btn btn-sm btn-outline-danger"
-                                        onclick="inhabilitarProducto()">
-
-                                        <i class="bi bi-slash-circle"></i>
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    PA003
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        Pantalón Denim Clásico
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    Pantalones
-                                </td>
-
-                                <td>
-                                    32
-                                </td>
-
-                                <td>
-                                    Azul
-                                </td>
-
-                                <td>
-                                    S/ 95.00
-                                </td>
-
-                                <td>
-                                    4
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-warning text-dark">
-                                        Stock bajo
-                                    </span>
-                                </td>
-
-                                <td>
-
-                                    <button
-                                        class="btn btn-sm btn-outline-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEditar">
-
-                                        <i class="bi bi-pencil"></i>
-
-                                    </button>
-
-                                    <button
-                                        class="btn btn-sm btn-outline-danger"
-                                        onclick="inhabilitarProducto()">
-
-                                        <i class="bi bi-slash-circle"></i>
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ================================================= -->
-    <!-- STOCK -->
-    <!-- ================================================= -->
-
-    <section id="stock"
-             class="seccion-sistema">
-
-        <div class="container-fluid p-4">
-
-            <div class="mb-4">
-
-                <h2>
-                    Control de Stock
-                </h2>
-
-                <p class="text-muted">
-                    Consulta las existencias de las prendas.
-                </p>
-
-            </div>
-
-
-            <div class="card-luxe">
-
-                <div class="table-responsive">
-
-                    <table class="table table-hover align-middle">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Talla</th>
-                                <th>Stock</th>
-                                <th>Estado</th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <tr>
-
-                                <td>
-                                    Polo Algodón Premium
-                                </td>
-
-                                <td>
-                                    Polos
-                                </td>
-
-                                <td>
-                                    M
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        25
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success">
-                                        Disponible
-                                    </span>
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    Camisa Oxford Slim
-                                </td>
-
-                                <td>
-                                    Camisas
-                                </td>
-
-                                <td>
-                                    L
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        12
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success">
-                                        Disponible
-                                    </span>
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    Pantalón Denim Clásico
-                                </td>
-
-                                <td>
-                                    Pantalones
-                                </td>
-
-                                <td>
-                                    32
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        4
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-warning text-dark">
-                                        Stock bajo
-                                    </span>
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    Camisa Casual
-                                </td>
-
-                                <td>
-                                    Camisas
-                                </td>
-
-                                <td>
-                                    M
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        0
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-danger">
-                                        Agotado
-                                    </span>
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ================================================= -->
-    <!-- VENTAS -->
-    <!-- ================================================= -->
-
-    <section id="ventas"
-             class="seccion-sistema">
-
-        <div class="container-fluid p-4">
-
-            <div class="mb-4">
-
-                <h2>
-                    Historial de Ventas
-                </h2>
-
-                <p class="text-muted">
-                    Consulta las transacciones realizadas.
-                </p>
-
-            </div>
-
-
-            <div class="card-luxe">
-
-                <div class="table-responsive">
-
-                    <table class="table table-hover align-middle">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>Ticket</th>
-                                <th>Fecha</th>
-                                <th>Cajero</th>
-                                <th>Productos</th>
-                                <th>Método</th>
-                                <th>Total</th>
-                                <th>Detalle</th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <tr>
-
-                                <td>
-                                    #TLX-00245
-                                </td>
-
-                                <td>
-                                    03/09/2026
-                                </td>
-
-                                <td>
-                                    Juan Pérez
-                                </td>
-
-                                <td>
-                                    3
-                                </td>
-
-                                <td>
-                                    Yape / Plin
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        S/ 269.70
-                                    </strong>
-                                </td>
-
-                                <td>
-
-                                    <button
-                                        class="btn btn-sm btn-luxe"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalDetalleVenta">
-
-                                        <i class="bi bi-eye"></i>
-                                        Ver
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    #TLX-00244
-                                </td>
-
-                                <td>
-                                    03/09/2026
-                                </td>
-
-                                <td>
-                                    María López
-                                </td>
-
-                                <td>
-                                    2
-                                </td>
-
-                                <td>
-                                    Tarjeta
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        S/ 180.00
-                                    </strong>
-                                </td>
-
-                                <td>
-
-                                    <button
-                                        class="btn btn-sm btn-luxe"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalDetalleVenta">
-
-                                        <i class="bi bi-eye"></i>
-                                        Ver
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ================================================= -->
-    <!-- USUARIOS -->
-    <!-- ================================================= -->
-
-    <section id="usuarios"
-             class="seccion-sistema">
-
-        <div class="container-fluid p-4">
-
-            <div class="d-flex justify-content-between
-                        align-items-center mb-4">
-
-                <div>
-
-                    <h2>
-                        Usuarios
-                    </h2>
-
-                    <p class="text-muted">
-                        Gestiona los usuarios y roles del sistema.
-                    </p>
-
-                </div>
-
-
-                <button
-                    class="btn btn-luxe"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalUsuario">
-
-                    <i class="bi bi-person-plus"></i>
-
-                    Nuevo usuario
-
-                </button>
-
-            </div>
-
-
-            <div class="card-luxe">
-
-                <div class="table-responsive">
-
-                    <table class="table table-hover align-middle">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>Usuario</th>
-                                <th>Nombre</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <tr>
-
-                                <td>
-                                    admin
-                                </td>
-
-                                <td>
-                                    Administrador General
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-dark">
-                                        Administrador
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success">
-                                        Activo
-                                    </span>
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    vendedor
-                                </td>
-
-                                <td>
-                                    Juan Pérez
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-secondary">
-                                        Vendedor
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success">
-                                        Activo
-                                    </span>
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-</main>
-
-
-
-<!-- ================================================= -->
-<!-- MODAL NUEVO PRODUCTO -->
-<!-- ================================================= -->
-
-<div class="modal fade"
-     id="modalProducto"
-     tabindex="-1">
-
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h5 class="modal-title">
-
-                    <i class="bi bi-box-seam me-2"></i>
-
-                    Registrar Nueva Prenda
-
-                </h5>
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal">
-                </button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <div class="row g-3">
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Código
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Ej. PL006">
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Nombre de la prenda
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Ej. Polo Premium">
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Categoría
-                        </label>
-
-                        <select class="form-select">
-
-                            <option>
-                                Seleccione
-                            </option>
-
-                            <option>
-                                Polos
-                            </option>
-
-                            <option>
-                                Camisas
-                            </option>
-
-                            <option>
-                                Pantalones
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Talla
-                        </label>
-
-                        <select class="form-select">
-
-                            <option>
-                                Seleccione
-                            </option>
-
-                            <option>XS</option>
-                            <option>S</option>
-                            <option>M</option>
-                            <option>L</option>
-                            <option>XL</option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Color
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Ej. Negro">
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Precio
-                        </label>
-
-                        <input
-                            type="number"
-                            class="form-control"
-                            placeholder="0.00">
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Stock
-                        </label>
-
-                        <input
-                            type="number"
-                            class="form-control"
-                            placeholder="0">
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
-
-                    Cancelar
-
-                </button>
-
-                <button
-                    class="btn btn-luxe"
-                    onclick="guardarProducto()">
-
-                    <i class="bi bi-check-lg"></i>
-
-                    Guardar Prenda
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- ================================================= -->
-<!-- MODAL EDITAR PRODUCTO -->
-<!-- ================================================= -->
-
-<div class="modal fade"
-     id="modalEditar"
-     tabindex="-1">
-
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h5 class="modal-title">
-
-                    <i class="bi bi-pencil me-2"></i>
-
-                    Editar Prenda
-
-                </h5>
-
-                <button
-                    class="btn-close"
-                    data-bs-dismiss="modal">
-                </button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <div class="row g-3">
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Nombre
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            value="Polo Algodón Premium">
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Categoría
-                        </label>
-
-                        <select class="form-select">
-
-                            <option selected>
-                                Polos
-                            </option>
-
-                            <option>
-                                Camisas
-                            </option>
-
-                            <option>
-                                Pantalones
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Talla
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            value="M">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Color
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            value="Negro">
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Precio
-                        </label>
-
-                        <input
-                            type="number"
-                            class="form-control"
-                            value="45">
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
-
-                    Cancelar
-
-                </button>
-
-                <button
-                    class="btn btn-luxe"
-                    onclick="actualizarProducto()">
-
-                    Guardar cambios
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- ================================================= -->
-<!-- MODAL DETALLE VENTA -->
-<!-- ================================================= -->
-
-<div class="modal fade"
-     id="modalDetalleVenta"
-     tabindex="-1">
-
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h5 class="modal-title">
-
-                    <i class="bi bi-receipt me-2"></i>
-
-                    Detalle de Venta #TLX-00245
-
-                </h5>
-
-                <button
-                    class="btn-close"
-                    data-bs-dismiss="modal">
-                </button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <div class="row mb-3">
-
-                    <div class="col-md-4">
+                    <div class="text-center mt-4">
 
                         <small class="text-muted">
-                            Cajero
+                            © 2026 LUXE · Sistema POS
                         </small>
-
-                        <p class="fw-bold">
-                            Juan Pérez
-                        </p>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <small class="text-muted">
-                            Fecha
-                        </small>
-
-                        <p class="fw-bold">
-                            03/09/2026
-                        </p>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <small class="text-muted">
-                            Pago
-                        </small>
-
-                        <p class="fw-bold">
-                            Yape / Plin
-                        </p>
 
                     </div>
 
                 </div>
-
-
-                <div class="table-responsive">
-
-                    <table class="table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>Prenda</th>
-                                <th>Talla</th>
-                                <th>Cantidad</th>
-                                <th>Subtotal</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            <tr>
-
-                                <td>
-                                    Polo Algodón Premium
-                                </td>
-
-                                <td>
-                                    M
-                                </td>
-
-                                <td>
-                                    2
-                                </td>
-
-                                <td>
-                                    S/ 90.00
-                                </td>
-
-                            </tr>
-
-
-                            <tr>
-
-                                <td>
-                                    Pantalón Denim Clásico
-                                </td>
-
-                                <td>
-                                    32
-                                </td>
-
-                                <td>
-                                    1
-                                </td>
-
-                                <td>
-                                    S/ 95.00
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-
-                <div class="text-end">
-
-                    <h4>
-                        Total:
-                        <strong>
-                            S/ 185.00
-                        </strong>
-                    </h4>
-
-                </div>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
-
-                    Cerrar
-
-                </button>
-
-                <button class="btn btn-luxe">
-
-                    <i class="bi bi-printer"></i>
-
-                    Imprimir comprobante
-
-                </button>
 
             </div>
 
         </div>
-
-    </div>
-
-</div>
+    </main>
 
 
+    <script>
 
-<!-- ================================================= -->
-<!-- MODAL USUARIO -->
-<!-- ================================================= -->
+        function mostrarPassword() {
 
-<div class="modal fade"
-     id="modalUsuario"
-     tabindex="-1">
+            const password =
+                document.getElementById("password");
 
-    <div class="modal-dialog modal-dialog-centered">
+            const icon =
+                document.getElementById("iconPassword");
 
-        <div class="modal-content">
+            if (password.type === "password") {
 
-            <div class="modal-header">
+                password.type = "text";
 
-                <h5 class="modal-title">
-                    Nuevo Usuario
-                </h5>
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
 
-                <button
-                    class="btn-close"
-                    data-bs-dismiss="modal">
-                </button>
+            } else {
 
-            </div>
+                password.type = "password";
 
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
 
-            <div class="modal-body">
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Nombre completo
-                    </label>
-
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Nombre del empleado">
-
-                </div>
+            }
+        }
 
 
-                <div class="mb-3">
+        document
+            .getElementById("formLogin")
+            .addEventListener("submit", function(e) {
 
-                    <label class="form-label">
-                        Usuario
-                    </label>
+                e.preventDefault();
 
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Nombre de usuario">
+                const usuario =
+                    document.getElementById("usuario").value.trim();
 
-                </div>
+                const password =
+                    document.getElementById("password").value.trim();
 
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Contraseña
-                    </label>
-
-                    <input
-                        type="password"
-                        class="form-control"
-                        placeholder="Contraseña">
-
-                </div>
+                const error =
+                    document.getElementById("mensajeError");
 
 
-                <div class="mb-3">
+                /*
+                    USUARIOS DEMO
 
-                    <label class="form-label">
-                        Rol
-                    </label>
+                    ADMIN:
+                    admin / 1234
 
-                    <select class="form-select">
+                    VENDEDOR:
+                    vendedor / 1234
+                */
 
-                        <option>
-                            Vendedor
-                        </option>
+                if (usuario === "admin" && password === "1234") {
 
-                        <option>
-                            Administrador
-                        </option>
+                    window.location.href = "admin.html";
 
-                    </select>
+                }
 
-                </div>
+                else if (
+                    usuario === "vendedor" &&
+                    password === "1234"
+                ) {
 
-            </div>
+                    window.location.href = "vendedor.html";
 
+                }
 
-            <div class="modal-footer">
+                else {
 
-                <button
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
+                    error.classList.remove("d-none");
 
-                    Cancelar
+                }
 
-                </button>
+            });
 
-                <button
-                    class="btn btn-luxe"
-                    onclick="guardarUsuario()">
-
-                    Guardar usuario
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- BOOTSTRAP JS -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
-
-<script src="sistema.js"></script>
+    </script>
 
 </body>
 </html>
