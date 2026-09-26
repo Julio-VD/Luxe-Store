@@ -15,7 +15,7 @@
     <artifactId>luxe-store</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>Luxe-Store</name>
-    <description>Sistema Web POS para Tienda de Ropa Luxe - Avance 2 y Spring Data JPA</description>
+    <description>Sistema Web POS para Tienda de Ropa Luxe - Avance 2 (Thymeleaf, Angular y Spring Data JPA)</description>
 
     <properties>
         <java.version>17</java.version>
@@ -26,6 +26,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Thymeleaf Template Engine -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
         <!-- Spring Data JPA -->
