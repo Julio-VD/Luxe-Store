@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXE | Panel de Administración</title>
+
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- ICONOS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- CSS PROPIO -->
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+
+    <div class="d-flex min-vh-100">
+
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="sidebar p-3 d-flex flex-column justify-content-between">
+            <div>
+                <div class="logo-sidebar text-center mb-4">
+                    <h2>LUXE</h2>
+                    <p class="text-gold small mb-0">ADMINISTRACIÓN POS</p>
+                </div>
+
+                <nav class="nav flex-column gap-2">
+                    <a href="#" class="menu-item activo" onclick="mostrarSeccion('dashboard', this)">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                    <a href="#" class="menu-item" onclick="mostrarSeccion('productos', this)">
+                        <i class="bi bi-box-seam me-2"></i> Catálogo de Prendas
+                    </a>
+                    <a href="#" class="menu-item" onclick="mostrarSeccion('stock', this)">
+                        <i class="bi bi-clipboard-check me-2"></i> Control de Stock
+                    </a>
+                    <a href="#" class="menu-item" onclick="mostrarSeccion('ventas', this)">
+                        <i class="bi bi-receipt me-2"></i> Historial de Ventas
+                    </a>
+                    <a href="#" class="menu-item" onclick="mostrarSeccion('clientes', this)">
+                        <i class="bi bi-people me-2"></i> Gestión de Clientes
+                    </a>
+                    <a th:href="@{/reportes}" class="menu-item text-gold fw-bold">
+                        <i class="bi bi-bar-chart-line-fill me-2"></i> Reportes & Gráficos
+                    </a>
+                </nav>
+            </div>
+
+            <div class="user-info pt-3 border-top border-secondary text-center">
+                <p class="mb-1 text-light small fw-bold" th:text="${usuarioLogueado.nombreCompleto}">Administrador</p>
+                <span class="badge bg-gold text-dark" th:text="${usuarioLogueado.rol}">ADMIN</span>
+                <div class="mt-3">
+                    <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm w-100">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="flex-grow-1 bg-light p-4 overflow-auto">
+
+            <!-- ALERTA MENSAJE FLASH -->
+            <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${mensaje}">Operación realizada.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- ENCABEZADO DE SECCIÓN -->
+            <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <h3 id="tituloSeccion" class="fw-bold mb-0 text-dark">Dashboard</h3>
+                <div>
+                    <a th:href="@{/reportes}" class="btn btn-gold text-dark me-2">
+                        <i class="bi bi-pie-chart-fill me-1"></i> Ver Gráficos de Ventas
+                    </a>
+                    <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
+                        <i class="bi bi-plus-circle me-1"></i> Nueva Prenda
+                    </button>
+                </div>
+            </header>
+
+            <!-- 1. SECCIÓN DASHBOARD -->
+            <section id="dashboard" class="seccion-sistema activa">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stat bg-white p-3 shadow-sm border-0 border-start border-4 border-gold">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Ventas Totales</p>
+                                    <h4 class="fw-bold mb-0" th:text="'S/ ' + ${#numbers.formatDecimal(totalVentasMonto, 1, 2)}">S/ 0.00</h4>
+                                </div>
+                                <div class="stat-icon bg-light text-gold p-3 rounded-circle">
+                                    <i class="bi bi-currency-dollar fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-stat bg-white p-3 shadow-sm border-0 border-start border-4 border-primary">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Total Productos</p>
+                                    <h4 class="fw-bold mb-0" th:text="${totalProductos}">0</h4>
+                                </div>
+                                <div class="stat-icon bg-light text-primary p-3 rounded-circle">
+                                    <i class="bi bi-box-seam fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-stat bg-white p-3 shadow-sm border-0 border-start border-4 border-warning">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Stock Bajo (&le; 5)</p>
+                                    <h4 class="fw-bold mb-0 text-warning" th:text="${stockBajoCount}">0</h4>
+                                </div>
+                                <div class="stat-icon bg-light text-warning p-3 rounded-circle">
+                                    <i class="bi bi-exclamation-triangle fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-stat bg-white p-3 shadow-sm border-0 border-start border-4 border-success">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Clientes Registrados</p>
+                                    <h4 class="fw-bold mb-0" th:text="${clientes.size()}">0</h4>
+                                </div>
+                                <div class="stat-icon bg-light text-success p-3 rounded-circle">
+                                    <i class="bi bi-people fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÚLTIMAS VENTAS REGISTRADAS -->
+                <div class="card bg-white shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white fw-bold py-3 border-0">
+                        <i class="bi bi-clock-history me-2"></i> Últimas Ventas Registradas
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Vendedor</th>
+                                    <th>Medio Pago</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="v : ${ventas}">
+                                    <td class="fw-bold" th:text="${v.numeroTicket}">#TLX-0000</td>
+                                    <td th:text="${v.fecha}">01/01/2026</td>
+                                    <td th:text="${v.cliente != null ? v.cliente.nombres : 'Cliente Anónimo'}">Cliente</td>
+                                    <td th:text="${v.vendedor}">Vendedor</td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${v.metodoPago}">Efectivo</span>
+                                    </td>
+                                    <td class="fw-bold text-success" th:text="'S/ ' + ${#numbers.formatDecimal(v.montoTotal, 1, 2)}">S/ 0.00</td>
+                                    <td>
+                                        <span class="badge bg-success" th:text="${v.estado}">Completado</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 2. SECCIÓN CATÁLOGO DE PRENDAS -->
+            <section id="productos" class="seccion-sistema">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <input type="text" id="buscarProducto" class="form-control w-25" placeholder="Buscar por código, nombre..." onkeyup="buscarProductos()">
+                            <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
+                                <i class="bi bi-plus-circle me-1"></i> Agregar Prenda
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle" id="tablaProductos">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Prenda</th>
+                                        <th>Categoría</th>
+                                        <th>Talla</th>
+                                        <th>Color</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="p : ${productos}">
+                                        <td class="fw-bold" th:text="${p.codigo}">PL001</td>
+                                        <td th:text="${p.nombre}">Polo</td>
+                                        <td th:text="${p.categoria}">Categoría</td>
+                                        <td th:text="${p.talla}">Talla</td>
+                                        <td th:text="${p.color}">Color</td>
+                                        <td class="fw-bold text-dark" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}">S/ 0.00</td>
+                                        <td>
+                                            <span th:class="${p.stock &lt;= 5 ? 'badge bg-danger' : 'badge bg-primary'}" th:text="${p.stock}">0</span>
+                                        </td>
+                                        <td>
+                                            <span th:class="${p.estado == 'Activo' ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${p.estado}">Activo</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a th:href="@{/admin/productos/inhabilitar/{id}(id=${p.id})}" class="btn btn-outline-warning btn-sm me-1" title="Inhabilitar">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </a>
+                                            <a th:href="@{/admin/productos/eliminar/{id}(id=${p.id})}" class="btn btn-outline-danger btn-sm" title="Eliminar" onclick="return confirm('¿Seguro de eliminar esta prenda?')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 3. SECCIÓN CONTROL DE STOCK -->
+            <section id="stock" class="seccion-sistema">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold py-3">
+                        <i class="bi bi-clipboard-check me-2"></i> Control de Stock de Almacén
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Stock Disponible</th>
+                                    <th>Alerta de Nivel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="p : ${productos}">
+                                    <td th:text="${p.codigo}">COD</td>
+                                    <td th:text="${p.nombre}">Nombre</td>
+                                    <td class="fw-bold" th:text="${p.stock}">0</td>
+                                    <td>
+                                        <span th:if="${p.stock == 0}" class="badge bg-dark">AGOTADO</span>
+                                        <span th:if="${p.stock > 0 and p.stock <= 5}" class="badge bg-danger">REPOSITAR URGENTE</span>
+                                        <span th:if="${p.stock > 5 and p.stock <= 15}" class="badge bg-warning text-dark">STOCK MODERADO</span>
+                                        <span th:if="${p.stock > 15}" class="badge bg-success">STOCK OPTIMO</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 4. SECCIÓN HISTORIAL DE VENTAS -->
+            <section id="ventas" class="seccion-sistema">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold py-3">
+                        <i class="bi bi-receipt me-2"></i> Reporte Histórico de Transacciones POS
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead>
+                                    <tr>
+                                        <th># Ticket</th>
+                                        <th>Fecha Hora</th>
+                                        <th>Cliente</th>
+                                        <th>Atendido por</th>
+                                        <th>Medio Pago</th>
+                                        <th>Total Transacción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="v : ${ventas}">
+                                        <td class="fw-bold" th:text="${v.numeroTicket}">#TLX-000</td>
+                                        <td th:text="${v.fecha}">01/01/2026</td>
+                                        <td th:text="${v.cliente != null ? v.cliente.nombres : 'Cliente General'}">Cliente</td>
+                                        <td th:text="${v.vendedor}">Vendedor</td>
+                                        <td th:text="${v.metodoPago}">Efectivo</td>
+                                        <td class="fw-bold text-success" th:text="'S/ ' + ${#numbers.formatDecimal(v.montoTotal, 1, 2)}">S/ 0.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 5. SECCIÓN GESTIÓN DE CLIENTES -->
+            <section id="clientes" class="seccion-sistema">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold py-3">
+                        <i class="bi bi-people me-2"></i> Clientes Registrados
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tipo Doc</th>
+                                    <th>Documento</th>
+                                    <th>Nombres / Razón Social</th>
+                                    <th>Teléfono</th>
+                                    <th>Correo</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="c : ${clientes}">
+                                    <td th:text="${c.tipoDocumento}">DNI</td>
+                                    <td class="fw-bold" th:text="${c.numeroDocumento}">00000000</td>
+                                    <td th:text="${c.nombres}">Nombre Cliente</td>
+                                    <td th:text="${c.telefono}">999999999</td>
+                                    <td th:text="${c.correo}">correo@dominio.com</td>
+                                    <td>
+                                        <span th:class="${c.estado == 'Activo' ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${c.estado}">Activo</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+
+    <!-- MODAL NUEVA PRENDA (SPRING BOOT FORM) -->
+    <div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i> Registrar Nueva Prenda</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/productos/guardar}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Código de Producto</label>
+                            <input type="text" name="codigo" class="form-control" placeholder="Ej. PL006" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de Prenda</label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Ej. Polo Casual Algodón" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Categoría</label>
+                                <select name="categoria" class="form-select" required>
+                                    <option value="Polos">Polos</option>
+                                    <option value="Camisas">Camisas</option>
+                                    <option value="Pantalones">Pantalones</option>
+                                    <option value="Casacas">Casacas</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Talla</label>
+                                <select name="talla" class="form-select" required>
+                                    <option value="S">S</option>
+                                    <option value="M">M</option>
+                                    <option value="L">L</option>
+                                    <option value="XL">XL</option>
+                                    <option value="30">30</option>
+                                    <option value="32">32</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Color</label>
+                                <input type="text" name="color" class="form-control" placeholder="Ej. Negro" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Precio (S/)</label>
+                                <input type="number" step="0.10" name="precio" class="form-control" placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Stock Inicial</label>
+                            <input type="number" name="stock" class="form-control" placeholder="10" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-gold text-dark fw-bold">Guardar Prenda</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS BOOTSTRAP -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/sistema.js}"></script>
+</body>
+</html>
