@@ -1,20 +1,43 @@
 package com.luxe.store.model;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "ventas")
 public class Venta {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(length = 30)
     private String numeroTicket;
+
+    @Column(length = 30)
     private String fecha;
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
     private Cliente cliente;
+
+    @Column(length = 100)
     private String vendedor;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "venta_id")
     private List<DetalleVenta> detalles = new ArrayList<>();
-    private String metodoPago; // "Efectivo", "Tarjeta", "Yape/Plin"
+
+    @Column(length = 30)
+    private String metodoPago;
+
     private Double montoTotal;
     private Double montoRecibido;
     private Double vuelto;
-    private String estado; // "Completado", "Cancelado"
+
+    @Column(length = 20)
+    private String estado;
 
     public Venta() {}
 
@@ -25,8 +48,8 @@ public class Venta {
         this.cliente = cliente;
         this.vendedor = vendedor;
         this.detalles = detalles != null ? detalles : new ArrayList<>();
-        this.montoTotal = montoTotal;
         this.metodoPago = metodoPago;
+        this.montoTotal = montoTotal;
         this.montoRecibido = montoRecibido;
         this.vuelto = vuelto;
         this.estado = estado;

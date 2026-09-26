@@ -1,14 +1,37 @@
 package com.luxe.store.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "productos")
 public class Producto {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 20)
     private String codigo;
+
+    @Column(nullable = false, length = 100)
     private String nombre;
+
+    @Column(nullable = false, length = 50)
     private String categoria;
+
+    @Column(nullable = false, length = 20)
     private String talla;
+
+    @Column(length = 30)
     private String color;
+
+    @Column(nullable = false)
     private Double precio;
+
+    @Column(nullable = false)
     private Integer stock;
+
+    @Column(length = 20)
     private String estado; // "Activo", "Inactivo", "Agotado"
 
     public Producto() {}

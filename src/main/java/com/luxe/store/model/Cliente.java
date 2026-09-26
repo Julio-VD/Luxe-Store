@@ -1,12 +1,31 @@
 package com.luxe.store.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "clientes")
 public class Cliente {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 10)
     private String tipoDocumento; // "DNI", "RUC"
+
+    @Column(nullable = false, unique = true, length = 20)
     private String numeroDocumento;
+
+    @Column(nullable = false, length = 100)
     private String nombres;
+
+    @Column(length = 20)
     private String telefono;
+
+    @Column(length = 100)
     private String correo;
+
+    @Column(length = 20)
     private String estado; // "Activo", "Inactivo"
 
     public Cliente() {}
