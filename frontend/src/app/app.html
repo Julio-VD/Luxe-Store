@@ -1,0 +1,658 @@
+<!-- 1. VISTA INICIO DE SESIÓN (LOGIN) -->
+<div *ngIf="currentView === 'LOGIN'" class="login-body min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="login-card p-4 shadow bg-white rounded">
+          <div class="text-center mb-4">
+            <div class="logo-login fs-2 fw-bold text-dark">LUXE</div>
+            <p class="text-muted small mb-0">Sistema Web POS · Angular & Spring Boot</p>
+          </div>
+
+          <div *ngIf="loginError" class="alert alert-danger p-2 small" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ loginError }}
+          </div>
+
+          <form (ngSubmit)="login()">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Usuario</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input type="text" class="form-control" [(ngModel)]="usuarioInput" name="usuario" placeholder="Ej. admin o vendedor" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Contraseña</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input type="password" class="form-control" [(ngModel)]="passwordInput" name="password" placeholder="••••••••" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100 py-2 btn-login fw-bold">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión (Angular)
+            </button>
+          </form>
+
+          <div class="mt-4 pt-3 border-top text-center small text-muted">
+            <p class="mb-1"><strong>Credenciales de Prueba:</strong></p>
+            <span class="badge bg-light text-dark border me-1">Admin: admin / 1234</span>
+            <span class="badge bg-light text-dark border">Vendedor: vendedor / 1234</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 2. VISTA PANEL ADMINISTRADOR -->
+<div *ngIf="currentView === 'ADMIN'" class="d-flex min-vh-100">
+  <aside class="sidebar p-3 d-flex flex-column justify-content-between">
+    <div>
+      <div class="logo-sidebar text-center mb-4">
+        <h2>LUXE</h2>
+        <p class="text-gold small mb-0">ADMINISTRACIÓN ANGULAR</p>
+      </div>
+
+      <nav class="nav flex-column gap-2">
+        <a href="#" class="menu-item" [class.activo]="adminSeccion === 'dashboard'" (click)="adminSeccion = 'dashboard'; $event.preventDefault()">
+          <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+        <a href="#" class="menu-item" [class.activo]="adminSeccion === 'productos'" (click)="adminSeccion = 'productos'; $event.preventDefault()">
+          <i class="bi bi-box-seam me-2"></i> Catálogo de Prendas
+        </a>
+        <a href="#" class="menu-item" [class.activo]="adminSeccion === 'stock'" (click)="adminSeccion = 'stock'; $event.preventDefault()">
+          <i class="bi bi-clipboard-check me-2"></i> Control de Stock
+        </a>
+        <a href="#" class="menu-item" [class.activo]="adminSeccion === 'ventas'" (click)="adminSeccion = 'ventas'; $event.preventDefault()">
+          <i class="bi bi-receipt me-2"></i> Historial de Ventas
+        </a>
+        <a href="#" class="menu-item" [class.activo]="adminSeccion === 'clientes'" (click)="adminSeccion = 'clientes'; $event.preventDefault()">
+          <i class="bi bi-people me-2"></i> Gestión de Clientes
+        </a>
+        <a href="#" class="menu-item text-gold fw-bold" (click)="irAReportes(); $event.preventDefault()">
+          <i class="bi bi-bar-chart-line-fill me-2"></i> Reportes & Gráficos
+        </a>
+      </nav>
+    </div>
+
+    <div class="user-info pt-3 border-top border-secondary text-center">
+      <p class="mb-1 text-light small fw-bold">{{ usuarioLogueado?.nombreCompleto }}</p>
+      <span class="badge bg-gold text-dark">{{ usuarioLogueado?.rol }}</span>
+      <div class="mt-3">
+        <button class="btn btn-outline-danger btn-sm w-100" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-grow-1 bg-light p-4 overflow-auto">
+    <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+      <h3 class="fw-bold mb-0 text-dark">Panel de Administración</h3>
+      <div>
+        <button class="btn btn-gold text-dark me-2" (click)="irAReportes()">
+          <i class="bi bi-pie-chart-fill me-1"></i> Ver Gráficos de Ventas
+        </button>
+        <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoProdAngular">
+          <i class="bi bi-plus-circle me-1"></i> Nueva Prenda
+        </button>
+      </div>
+    </header>
+
+    <!-- 2.1 DASHBOARD -->
+    <div *ngIf="adminSeccion === 'dashboard'">
+      <div class="row g-4 mb-4">
+        <div class="col-md-3">
+          <div class="card bg-white p-3 shadow-sm border-0 border-start border-4 border-gold">
+            <p class="text-muted small mb-1">Ventas Totales</p>
+            <h4 class="fw-bold mb-0 text-dark">S/ {{ totalVentasMonto | number:'1.2-2' }}</h4>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-white p-3 shadow-sm border-0 border-start border-4 border-primary">
+            <p class="text-muted small mb-1">Total Productos</p>
+            <h4 class="fw-bold mb-0 text-dark">{{ productos.length }}</h4>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-white p-3 shadow-sm border-0 border-start border-4 border-warning">
+            <p class="text-muted small mb-1">Stock Bajo (&le; 5)</p>
+            <h4 class="fw-bold mb-0 text-warning">{{ stockBajoCount }}</h4>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-white p-3 shadow-sm border-0 border-start border-4 border-success">
+            <p class="text-muted small mb-1">Clientes Registrados</p>
+            <h4 class="fw-bold mb-0 text-dark">{{ clientes.length }}</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white shadow-sm border-0">
+        <div class="card-header bg-white fw-bold py-3 border-0">
+          <i class="bi bi-clock-history me-2"></i> ÚLTIMAS VENTAS REGISTRADAS EN BACKEND
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Ticket</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Vendedor</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let v of ventas">
+                <td class="fw-bold">{{ v.numeroTicket }}</td>
+                <td>{{ v.fecha }}</td>
+                <td>{{ v.cliente ? v.cliente.nombres : 'Cliente General' }}</td>
+                <td>{{ v.vendedor }}</td>
+                <td class="fw-bold text-success">S/ {{ v.montoTotal | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.2 CATÁLOGO CRUD -->
+    <div *ngIf="adminSeccion === 'productos'">
+      <div class="card bg-white shadow-sm border-0">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Código</th>
+                  <th>Prenda</th>
+                  <th>Categoría</th>
+                  <th>Talla</th>
+                  <th>Precio</th>
+                  <th>Stock</th>
+                  <th>Estado</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of productos">
+                  <td class="fw-bold">{{ p.codigo }}</td>
+                  <td>{{ p.nombre }}</td>
+                  <td>{{ p.categoria }}</td>
+                  <td>{{ p.talla }}</td>
+                  <td class="fw-bold">S/ {{ p.precio | number:'1.2-2' }}</td>
+                  <td>
+                    <span [class]="p.stock <= 5 ? 'badge bg-danger' : 'badge bg-primary'">{{ p.stock }}</span>
+                  </td>
+                  <td>
+                    <span [class]="p.estado === 'Activo' ? 'badge bg-success' : 'badge bg-secondary'">{{ p.estado }}</span>
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-outline-warning btn-sm me-1" (click)="inhabilitarProducto(p.id)" title="Inhabilitar">
+                      <i class="bi bi-slash-circle"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" (click)="eliminarProducto(p.id)" title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.3 CONTROL DE STOCK -->
+    <div *ngIf="adminSeccion === 'stock'">
+      <div class="card bg-white shadow-sm border-0">
+        <div class="card-header bg-white fw-bold py-3">
+          <i class="bi bi-clipboard-check me-2"></i> CONTROL DE STOCK DE ALMACÉN
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Código</th>
+                <th>Producto</th>
+                <th>Stock</th>
+                <th>Alerta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of productos">
+                <td>{{ p.codigo }}</td>
+                <td>{{ p.nombre }}</td>
+                <td class="fw-bold">{{ p.stock }}</td>
+                <td>
+                  <span *ngIf="p.stock === 0" class="badge bg-dark">AGOTADO</span>
+                  <span *ngIf="p.stock > 0 && p.stock <= 5" class="badge bg-danger">REPOSITAR URGENTE</span>
+                  <span *ngIf="p.stock > 5 && p.stock <= 15" class="badge bg-warning text-dark">STOCK MODERADO</span>
+                  <span *ngIf="p.stock > 15" class="badge bg-success">STOCK ÓPTIMO</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.4 HISTORIAL -->
+    <div *ngIf="adminSeccion === 'ventas'">
+      <div class="card bg-white shadow-sm border-0">
+        <div class="card-header bg-white fw-bold py-3">
+          <i class="bi bi-receipt me-2"></i> HISTORIAL DE TRANSACCIONES
+        </div>
+        <div class="card-body">
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Ticket</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Atendido por</th>
+                <th>Medio Pago</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let v of ventas">
+                <td class="fw-bold">{{ v.numeroTicket }}</td>
+                <td>{{ v.fecha }}</td>
+                <td>{{ v.cliente ? v.cliente.nombres : 'Cliente General' }}</td>
+                <td>{{ v.vendedor }}</td>
+                <td>{{ v.metodoPago }}</td>
+                <td class="fw-bold text-success">S/ {{ v.montoTotal | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.5 CLIENTES -->
+    <div *ngIf="adminSeccion === 'clientes'">
+      <div class="card bg-white shadow-sm border-0">
+        <div class="card-header bg-white fw-bold py-3">
+          <i class="bi bi-people me-2"></i> CLIENTES REGISTRADOS EN SISTEMA
+        </div>
+        <div class="card-body">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Tipo Doc</th>
+                <th>Documento</th>
+                <th>Nombres / Razón Social</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of clientes">
+                <td>{{ c.tipoDocumento }}</td>
+                <td class="fw-bold">{{ c.numeroDocumento }}</td>
+                <td>{{ c.nombres }}</td>
+                <td>{{ c.telefono }}</td>
+                <td>{{ c.correo }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+<!-- 3. VISTA TERMINAL POS (VENDEDOR) -->
+<div *ngIf="currentView === 'VENDEDOR'" class="d-flex min-vh-100">
+  <aside class="sidebar p-3 d-flex flex-column justify-content-between">
+    <div>
+      <div class="logo-sidebar text-center mb-4">
+        <h2>LUXE</h2>
+        <p class="text-gold small mb-0">TERMINAL POS ANGULAR</p>
+      </div>
+
+      <nav class="nav flex-column gap-2">
+        <a href="#" class="menu-item activo">
+          <i class="bi bi-cart-check me-2"></i> Terminal de Venta
+        </a>
+      </nav>
+    </div>
+
+    <div class="user-info pt-3 border-top border-secondary text-center">
+      <p class="mb-1 text-light small fw-bold">{{ usuarioLogueado?.nombreCompleto }}</p>
+      <span class="badge bg-secondary">{{ usuarioLogueado?.rol }}</span>
+      <div class="mt-3">
+        <button class="btn btn-outline-danger btn-sm w-100" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-grow-1 p-4 overflow-auto">
+    <div class="row g-4">
+      <!-- TARJETAS CATÁLOGO -->
+      <div class="col-lg-7">
+        <div class="card bg-white shadow-sm border-0 mb-3">
+          <div class="card-body">
+            <input type="text" class="form-control" [(ngModel)]="buscarPosQuery" placeholder="Buscar prenda por nombre, código o categoría...">
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-4" *ngFor="let p of getProductosFiltradosPos()">
+            <div class="card border-0 shadow-sm h-100 text-center p-3">
+              <span class="badge bg-dark mb-2">{{ p.categoria }}</span>
+              <h6 class="fw-bold mb-1">{{ p.nombre }}</h6>
+              <p class="small text-muted mb-1">Talla: {{ p.talla }} | Color: {{ p.color }}</p>
+              <h5 class="text-gold fw-bold">S/ {{ p.precio | number:'1.2-2' }}</h5>
+              <p class="small text-muted mb-2">Stock: {{ p.stock }} disp.</p>
+              <button class="btn btn-outline-dark btn-sm w-100" (click)="agregarAlCarrito(p)">
+                <i class="bi bi-cart-plus me-1"></i> Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKET POS -->
+      <div class="col-lg-5">
+        <div class="card bg-white shadow-sm border-0 sticky-top" style="top: 20px;">
+          <div class="card-header bg-dark text-white py-3">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-receipt me-2"></i> Ticket de Venta</h5>
+          </div>
+
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Cliente</label>
+              <div class="input-group">
+                <select class="form-select" [(ngModel)]="clienteSeleccionadoDoc">
+                  <option value="">-- Cliente General / Venta Rápida --</option>
+                  <option *ngFor="let c of clientes" [value]="c.numeroDocumento">{{ c.nombres }} ({{ c.numeroDocumento }})</option>
+                </select>
+                <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoClienteAngular">
+                  <i class="bi bi-person-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARRITO ITEMS -->
+            <div class="table-responsive mb-3" style="max-height: 250px;">
+              <table class="table table-sm align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Prenda</th>
+                    <th>Cant.</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="carritoPos.length === 0">
+                    <td colspan="4" class="text-center text-muted py-4">No hay productos en el ticket.</td>
+                  </tr>
+                  <tr *ngFor="let item of carritoPos">
+                    <td>
+                      <div class="fw-bold small">{{ item.producto.nombre }}</div>
+                      <div class="text-muted small">S/ {{ item.producto.precio | number:'1.2-2' }}</div>
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary px-1" (click)="modificarCantidad(item, -1)">-</button>
+                        <span class="btn btn-light px-2 border disabled fw-bold">{{ item.cantidad }}</span>
+                        <button class="btn btn-outline-secondary px-1" (click)="modificarCantidad(item, 1)">+</button>
+                      </div>
+                    </td>
+                    <td class="fw-bold">S/ {{ item.subtotal | number:'1.2-2' }}</td>
+                    <td>
+                      <button class="btn btn-link text-danger p-0" (click)="eliminarDelCarrito(item)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="bg-light p-3 rounded mb-3 border">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">TOTAL GENERAL:</h5>
+                <h4 class="fw-bold text-success mb-0">S/ {{ getPosTotal() | number:'1.2-2' }}</h4>
+              </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Medio de Pago</label>
+                <select class="form-select" [(ngModel)]="metodoPagoPos">
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Tarjeta">Tarjeta</option>
+                  <option value="Yape/Plin">Yape / Plin</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Monto Recibido</label>
+                <input type="number" step="0.10" class="form-control" [(ngModel)]="montoRecibidoPos">
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-warning-subtle rounded border border-warning">
+              <span class="small fw-bold">Vuelto a Entregar:</span>
+              <span class="fw-bold text-dark fs-5">S/ {{ getPosVuelto() | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button class="btn btn-success py-2 fw-bold" (click)="procesarVentaPos()">
+                <i class="bi bi-check-circle me-1"></i> Procesar Venta (Angular -> REST)
+              </button>
+              <button class="btn btn-outline-danger btn-sm" (click)="vaciarCarrito()">
+                <i class="bi bi-x-circle me-1"></i> Cancelar Ticket
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+<!-- 4. VISTA REPORTES Y GRÁFICOS (CHART.JS IN ANGULAR) -->
+<div *ngIf="currentView === 'REPORTES'" class="d-flex min-vh-100">
+  <aside class="sidebar p-3 d-flex flex-column justify-content-between">
+    <div>
+      <div class="logo-sidebar text-center mb-4">
+        <h2>LUXE</h2>
+        <p class="text-gold small mb-0">GRÁFICOS ANGULAR</p>
+      </div>
+
+      <nav class="nav flex-column gap-2">
+        <a href="#" class="menu-item" (click)="currentView = 'ADMIN'; $event.preventDefault()">
+          <i class="bi bi-arrow-left-circle me-2"></i> Volver al Panel
+        </a>
+        <a href="#" class="menu-item" [class.activo]="paginaGraficos === 1" (click)="setPaginaGraficos(1); $event.preventDefault()">
+          <i class="bi bi-bar-chart-line me-2"></i> Pág 1: Categorías & Tendencia
+        </a>
+        <a href="#" class="menu-item" [class.activo]="paginaGraficos === 2" (click)="setPaginaGraficos(2); $event.preventDefault()">
+          <i class="bi bi-pie-chart me-2"></i> Pág 2: Métodos Pago & Stock
+        </a>
+      </nav>
+    </div>
+
+    <div class="user-info pt-3 border-top border-secondary text-center">
+      <p class="mb-1 text-light small fw-bold">{{ usuarioLogueado?.nombreCompleto }}</p>
+      <span class="badge bg-gold text-dark">{{ usuarioLogueado?.rol }}</span>
+    </div>
+  </aside>
+
+  <main class="flex-grow-1 p-4 overflow-auto bg-light">
+    <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+      <div>
+        <h3 class="fw-bold mb-0 text-dark">Módulo de Reportes Estadísticos (Angular)</h3>
+        <p class="text-muted small mb-0">Visualización de datos en gráficos de barras, líneas y circular</p>
+      </div>
+      <button class="btn btn-outline-dark btn-sm" (click)="currentView = 'ADMIN'">
+        <i class="bi bi-house me-1"></i> Regresar a Dashboard
+      </button>
+    </header>
+
+    <!-- PÁGINA 1 GRÁFICOS -->
+    <div *ngIf="paginaGraficos === 1">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-1-circle-fill text-gold me-2"></i> Página 1: Análisis de Ventas por Categoría y Tendencia</h5>
+        <button class="btn btn-sm btn-dark" (click)="setPaginaGraficos(2)">Ir a Página 2 &rarr;</button>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="card bg-white shadow-sm border-0 p-3 h-100">
+            <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i> Ventas por Categoría (Gráfico de Barras)</h6>
+            <canvas id="chartBarrasAngular" style="max-height: 300px;"></canvas>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card bg-white shadow-sm border-0 p-3 h-100">
+            <h6 class="fw-bold mb-3"><i class="bi bi-graph-up-arrow text-success me-2"></i> Evolución Mensual (Gráfico Lineal)</h6>
+            <canvas id="chartLinealAngular" style="max-height: 300px;"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PÁGINA 2 GRÁFICOS -->
+    <div *ngIf="paginaGraficos === 2">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-2-circle-fill text-gold me-2"></i> Página 2: Métodos de Pago y Balance de Stock</h5>
+        <button class="btn btn-sm btn-dark" (click)="setPaginaGraficos(1)">&larr; Volver a Página 1</button>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="card bg-white shadow-sm border-0 p-3 h-100">
+            <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-warning me-2"></i> Preferencia Métodos de Pago (Gráfico Circular)</h6>
+            <div class="d-flex justify-content-center">
+              <canvas id="chartCircularAngular" style="max-height: 300px; max-width: 300px;"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card bg-white shadow-sm border-0 p-3 h-100">
+            <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart text-info me-2"></i> Stock por Categoría (Gráfico de Barras Horizontal)</h6>
+            <canvas id="chartStockAngular" style="max-height: 300px;"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+<!-- MODAL NUEVA PRENDA (ANGULAR) -->
+<div class="modal fade" id="modalNuevoProdAngular" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i> Registrar Prenda (Angular)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form (ngSubmit)="guardarProducto()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Código</label>
+            <input type="text" class="form-control" [(ngModel)]="nuevoProducto.codigo" name="codigo" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre Prenda</label>
+            <input type="text" class="form-control" [(ngModel)]="nuevoProducto.nombre" name="nombre" required>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Categoría</label>
+              <select class="form-select" [(ngModel)]="nuevoProducto.categoria" name="categoria">
+                <option value="Polos">Polos</option>
+                <option value="Camisas">Camisas</option>
+                <option value="Pantalones">Pantalones</option>
+                <option value="Casacas">Casacas</option>
+              </select>
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Talla</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevoProducto.talla" name="talla">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Color</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevoProducto.color" name="color">
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Precio (S/)</label>
+              <input type="number" step="0.10" class="form-control" [(ngModel)]="nuevoProducto.precio" name="precio">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Stock Inicial</label>
+            <input type="number" class="form-control" [(ngModel)]="nuevoProducto.stock" name="stock">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-gold text-dark fw-bold" data-bs-dismiss="modal">Guardar Prenda</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL NUEVO CLIENTE (ANGULAR) -->
+<div class="modal fade" id="modalNuevoClienteAngular" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i> Registrar Cliente (Angular)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form (ngSubmit)="guardarClienteModal()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tipo Documento</label>
+            <select class="form-select" [(ngModel)]="nuevoCliente.tipoDocumento" name="tipoDoc">
+              <option value="DNI">DNI</option>
+              <option value="RUC">RUC</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Número Documento</label>
+            <input type="text" class="form-control" [(ngModel)]="nuevoCliente.numeroDocumento" name="numDoc" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombres / Razón Social</label>
+            <input type="text" class="form-control" [(ngModel)]="nuevoCliente.nombres" name="nombres" required>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Teléfono</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevoCliente.telefono" name="telefono">
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Correo</label>
+              <input type="email" class="form-control" [(ngModel)]="nuevoCliente.correo" name="correo">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-gold text-dark fw-bold" data-bs-dismiss="modal">Guardar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
