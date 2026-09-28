@@ -81,7 +81,11 @@
                                             <p class="small text-muted mb-0">Stock: <strong th:id="'stock-val-' + ${p.id}" th:text="${p.stock}">25</strong> disp.</p>
                                         </div>
                                         <button class="btn btn-outline-dark btn-sm w-100 mt-3"
-                                                th:onclick="'agregarAlCarrito(' + ${p.id} + ', \'' + ${#strings.escapeJavaScript(p.nombre)} + '\', ' + ${p.precio} + ', ' + ${p.stock} + ')'">
+                                                th:data-id="${p.id}"
+                                                th:data-nombre="${p.nombre}"
+                                                th:data-precio="${p.precio}"
+                                                th:data-stock="${p.stock}"
+                                                onclick="agregarAlCarrito(this.getAttribute('data-id'), this.getAttribute('data-nombre'), parseFloat(this.getAttribute('data-precio')), parseInt(this.getAttribute('data-stock')))">
                                             <i class="bi bi-cart-plus me-1"></i> Agregar
                                         </button>
                                     </div>
