@@ -43,9 +43,6 @@
                     <a th:href="@{/reportes}" class="menu-item text-gold fw-bold">
                         <i class="bi bi-bar-chart-line-fill me-2"></i> Reportes & Gráficos
                     </a>
-                    <a th:href="@{/vendedor}" class="menu-item text-gold fw-bold">
-                        <i class="bi bi-cart-check-fill me-2"></i> Terminal POS (Vendedor)
-                    </a>
                 </nav>
             </div>
 
@@ -67,6 +64,13 @@
             <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle-fill me-2"></i>
                 <span th:text="${mensaje}">Operación realizada.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- ALERTA ERROR FLASH -->
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}">Error en la operación.</span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
 
@@ -230,8 +234,10 @@
                                             <span th:class="${p.estado == 'Activo' ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${p.estado}">Activo</span>
                                         </td>
                                         <td class="text-center">
-                                            <a th:href="@{/admin/productos/inhabilitar/{id}(id=${p.id})}" class="btn btn-outline-warning btn-sm me-1" title="Inhabilitar">
-                                                <i class="bi bi-slash-circle"></i>
+                                            <a th:href="@{/admin/productos/inhabilitar/{id}(id=${p.id})}" 
+                                               th:class="${p.estado == 'Activo' ? 'btn btn-outline-warning btn-sm me-1' : 'btn btn-outline-success btn-sm me-1'}" 
+                                               th:title="${p.estado == 'Activo' ? 'Inhabilitar prenda' : 'Habilitar prenda'}">
+                                                <i th:class="${p.estado == 'Activo' ? 'bi bi-slash-circle' : 'bi bi-check-circle'}"></i>
                                             </a>
                                             <a th:href="@{/admin/productos/eliminar/{id}(id=${p.id})}" class="btn btn-outline-danger btn-sm" title="Eliminar" onclick="return confirm('¿Seguro de eliminar esta prenda?')">
                                                 <i class="bi bi-trash"></i>

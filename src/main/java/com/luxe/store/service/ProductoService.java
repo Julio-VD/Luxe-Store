@@ -56,7 +56,11 @@ public class ProductoService {
         Optional<Producto> opt = productoRepository.findById(id);
         if (opt.isPresent()) {
             Producto p = opt.get();
-            p.setEstado("Inactivo");
+            if ("Inactivo".equalsIgnoreCase(p.getEstado())) {
+                p.setEstado("Activo");
+            } else {
+                p.setEstado("Inactivo");
+            }
             productoRepository.save(p);
             return true;
         }
@@ -77,9 +81,8 @@ public class ProductoService {
             Producto p = opt.get();
             if (p.getStock() >= cantidad) {
                 p.setStock(p.getStock() - cantidad);
-                if (p.getStock() == 0) {
-                    p.setEstado("Agotado");
-                }
+                // NOTA: Cuando el stock llega a 0 NO se pasa a Inactivo.
+                // Solo el Administrador decide cambiar el estado a Inactivo.
                 productoRepository.save(p);
                 return true;
             }

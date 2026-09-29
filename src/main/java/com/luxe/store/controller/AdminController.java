@@ -68,15 +68,27 @@ public class AdminController {
 
     @GetMapping("/productos/inhabilitar/{id}")
     public String inhabilitarProducto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        productoService.inhabilitar(id);
-        redirectAttributes.addFlashAttribute("mensaje", "Estado del producto cambiado a Inactivo.");
+        java.util.Optional<Producto> opt = productoService.buscarPorId(id);
+        if (opt.isPresent()) {
+            boolean iraInactivo = !"Inactivo".equalsIgnoreCase(opt.get().getEstado());
+            productoService.inhabilitar(id);
+            if (iraInactivo) {
+                redirectAttributes.addFlashAttribute("mensaje", "Prenda inhabilitada (desactivada de las ventas).");
+            } else {
+                redirectAttributes.addFlashAttribute("mensaje", "Prenda reactivada en el catálogo.");
+            }
+        }
         return "redirect:/admin";
     }
 
     @GetMapping("/productos/eliminar/{id}")
     public String eliminarProducto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        productoService.eliminar(id);
-        redirectAttributes.addFlashAttribute("mensaje", "Prenda eliminada del catálogo.");
+        try {
+            productoService.eliminar(id);
+            redirectAttributes.addFlashAttribute("mensaje", "Prenda eliminada del catálogo.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "No se puede eliminar la prenda porque está vinculada al historial de ventas. Puede inhabilitarla para darla de baja sin romper el historial.");
+        }
         return "redirect:/admin";
     }
 }
