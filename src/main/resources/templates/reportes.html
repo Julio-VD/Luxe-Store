@@ -36,6 +36,9 @@
                     <a href="#pagina2" class="menu-item" id="tab2-link" onclick="mostrarPaginaGraficos(2)">
                         <i class="bi bi-pie-chart me-2"></i> Pág 2: Métodos Pago & Stock
                     </a>
+                    <a th:href="@{/vendedor}" class="menu-item text-gold fw-bold">
+                        <i class="bi bi-cart-check-fill me-2"></i> Terminal POS
+                    </a>
                 </nav>
             </div>
 
@@ -55,8 +58,8 @@
 
             <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                 <div>
-                    <h3 class="fw-bold mb-0 text-dark">Panel de Reportes Estadísticos (Thymeleaf)</h3>
-                    <p class="text-muted small mb-0">Visualización de datos de ventas en barras, líneas y gráficos circulares (Avance 2)</p>
+                    <h3 class="fw-bold mb-0 text-dark">Panel de Reportes Estadísticos</h3>
+                    <p class="text-muted small mb-0">Visualización de datos de ventas en barras, líneas y gráficos circulares</p>
                 </div>
                 <div>
                     <a th:href="@{/admin}" class="btn btn-outline-dark btn-sm">

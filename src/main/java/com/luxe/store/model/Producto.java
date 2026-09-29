@@ -34,6 +34,9 @@ public class Producto {
     @Column(length = 20)
     private String estado; // "Activo", "Inactivo", "Agotado"
 
+    @Column(length = 255)
+    private String imagenUrl;
+
     public Producto() {}
 
     public Producto(Long id, String codigo, String nombre, String categoria, String talla, String color, Double precio, Integer stock, String estado) {
@@ -46,6 +49,12 @@ public class Producto {
         this.precio = precio;
         this.stock = stock;
         this.estado = estado;
+        this.imagenUrl = "/img/productos/default.png";
+    }
+
+    public Producto(Long id, String codigo, String nombre, String categoria, String talla, String color, Double precio, Integer stock, String estado, String imagenUrl) {
+        this(id, codigo, nombre, categoria, talla, color, precio, stock, estado);
+        this.imagenUrl = imagenUrl;
     }
 
     public Long getId() { return id; }
@@ -74,4 +83,7 @@ public class Producto {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public String getImagenUrl() { return imagenUrl; }
+    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
 }

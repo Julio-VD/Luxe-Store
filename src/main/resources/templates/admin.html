@@ -21,7 +21,7 @@
             <div>
                 <div class="logo-sidebar text-center mb-4">
                     <h2>LUXE</h2>
-                    <p class="text-gold small mb-0">ADMINISTRACIÓN THYMELEAF</p>
+                    <p class="text-gold small mb-0">PANEL DE ADMINISTRACIÓN</p>
                 </div>
 
                 <nav class="nav flex-column gap-2">
@@ -42,6 +42,9 @@
                     </a>
                     <a th:href="@{/reportes}" class="menu-item text-gold fw-bold">
                         <i class="bi bi-bar-chart-line-fill me-2"></i> Reportes & Gráficos
+                    </a>
+                    <a th:href="@{/vendedor}" class="menu-item text-gold fw-bold">
+                        <i class="bi bi-cart-check-fill me-2"></i> Terminal POS (Vendedor)
                     </a>
                 </nav>
             </div>
@@ -194,6 +197,7 @@
                             <table class="table table-hover align-middle" id="tablaProductos">
                                 <thead class="table-dark">
                                     <tr>
+                                        <th style="width: 50px;">Foto</th>
                                         <th>Código</th>
                                         <th>Prenda</th>
                                         <th>Categoría</th>
@@ -207,6 +211,12 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="p : ${productos}">
+                                        <td>
+                                            <img th:src="${p.imagenUrl != null and !p.imagenUrl.isEmpty() ? p.imagenUrl : '/img/productos/default.png'}"
+                                                 th:alt="${p.nombre}"
+                                                 onerror="this.src='/img/productos/default.png'"
+                                                 style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #dee2e6;">
+                                        </td>
                                         <td class="fw-bold" th:text="${p.codigo}">PL001</td>
                                         <td th:text="${p.nombre}">Polo</td>
                                         <td th:text="${p.categoria}">Categoría</td>
@@ -399,6 +409,11 @@
                         <div class="mb-3">
                             <label class="form-label">Stock Inicial</label>
                             <input type="number" name="stock" class="form-control" placeholder="10" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Imagen de la Prenda (Opcional)</label>
+                            <input type="text" name="imagenUrl" class="form-control" placeholder="/img/productos/polo_negro.jpg o enlace web">
+                            <small class="text-muted">Si se deja vacío, se asignará la imagen por defecto del catálogo.</small>
                         </div>
                     </div>
                     <div class="modal-footer">

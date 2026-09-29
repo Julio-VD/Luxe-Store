@@ -18,13 +18,15 @@ public class DataLoader {
                                           VentaRepository ventaRepo,
                                           UsuarioRepository usuarioRepo) {
         return args -> {
-            // Seed Productos
+            // Seed Productos con imágenes
             if (productoRepo.count() == 0) {
-                productoRepo.save(new Producto(null, "PL001", "Polo Algodón Premium", "Polos", "M", "Negro", 45.00, 25, "Activo"));
-                productoRepo.save(new Producto(null, "CM002", "Camisa Oxford Slim", "Camisas", "L", "Azul", 75.00, 12, "Activo"));
-                productoRepo.save(new Producto(null, "PA003", "Pantalón Denim Clásico", "Pantalones", "32", "Azul Oscuro", 95.00, 4, "Activo"));
-                productoRepo.save(new Producto(null, "PL004", "Polo Oversize Luxe", "Polos", "L", "Blanco", 55.00, 18, "Activo"));
-                productoRepo.save(new Producto(null, "CM005", "Camisa Casual Manga Larga", "Camisas", "M", "Verde", 69.90, 8, "Activo"));
+                productoRepo.save(new Producto(null, "PL001", "Polo Algodón Premium", "Polos", "M", "Negro", 45.00, 25, "Activo", "/img/productos/polo_negro.jpg"));
+                productoRepo.save(new Producto(null, "CM002", "Camisa Oxford Slim", "Camisas", "L", "Azul", 75.00, 12, "Activo", "/img/productos/camisa_oxford_azul.jpg"));
+                productoRepo.save(new Producto(null, "PA003", "Pantalón Denim Clásico", "Pantalones", "32", "Azul Oscuro", 95.00, 4, "Activo", "/img/productos/pantalon_denim.jpg"));
+                productoRepo.save(new Producto(null, "PL004", "Polo Oversize Luxe", "Polos", "L", "Blanco", 55.00, 18, "Activo", "/img/productos/polo_blanco.jpg"));
+                productoRepo.save(new Producto(null, "CM005", "Camisa Casual Manga Larga", "Camisas", "M", "Verde", 69.90, 8, "Activo", "/img/productos/camisa_casual_verde.jpg"));
+                productoRepo.save(new Producto(null, "CS006", "Casaca Bomber Urbana", "Casacas", "L", "Negro", 149.00, 10, "Activo", "/img/productos/casaca_bomber.jpg"));
+                productoRepo.save(new Producto(null, "PA007", "Pantalón Cargo Beige", "Pantalones", "30", "Beige", 89.90, 15, "Activo", "/img/productos/pantalon_cargo.jpg"));
             }
 
             // Seed Clientes
