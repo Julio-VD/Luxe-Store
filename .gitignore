@@ -1,0 +1,13 @@
+target/
+*.class
+.mvn/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# Frontend Angular ignores
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/

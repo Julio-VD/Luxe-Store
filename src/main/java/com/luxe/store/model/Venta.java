@@ -1,0 +1,90 @@
+package com.luxe.store.model;
+
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "ventas")
+public class Venta {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 30)
+    private String numeroTicket;
+
+    @Column(length = 30)
+    private String fecha;
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
+
+    @Column(length = 100)
+    private String vendedor;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "venta_id")
+    private List<DetalleVenta> detalles = new ArrayList<>();
+
+    @Column(length = 30)
+    private String metodoPago;
+
+    private Double montoTotal;
+    private Double montoRecibido;
+    private Double vuelto;
+
+    @Column(length = 20)
+    private String estado;
+
+    public Venta() {}
+
+    public Venta(Long id, String numeroTicket, String fecha, Cliente cliente, String vendedor, List<DetalleVenta> detalles, String metodoPago, Double montoTotal, Double montoRecibido, Double vuelto, String estado) {
+        this.id = id;
+        this.numeroTicket = numeroTicket;
+        this.fecha = fecha;
+        this.cliente = cliente;
+        this.vendedor = vendedor;
+        this.detalles = detalles != null ? detalles : new ArrayList<>();
+        this.metodoPago = metodoPago;
+        this.montoTotal = montoTotal;
+        this.montoRecibido = montoRecibido;
+        this.vuelto = vuelto;
+        this.estado = estado;
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNumeroTicket() { return numeroTicket; }
+    public void setNumeroTicket(String numeroTicket) { this.numeroTicket = numeroTicket; }
+
+    public String getFecha() { return fecha; }
+    public void setFecha(String fecha) { this.fecha = fecha; }
+
+    public Cliente getCliente() { return cliente; }
+    public void setCliente(Cliente cliente) { this.cliente = cliente; }
+
+    public String getVendedor() { return vendedor; }
+    public void setVendedor(String vendedor) { this.vendedor = vendedor; }
+
+    public List<DetalleVenta> getDetalles() { return detalles; }
+    public void setDetalles(List<DetalleVenta> detalles) { this.detalles = detalles; }
+
+    public String getMetodoPago() { return metodoPago; }
+    public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
+
+    public Double getMontoTotal() { return montoTotal; }
+    public void setMontoTotal(Double montoTotal) { this.montoTotal = montoTotal; }
+
+    public Double getMontoRecibido() { return montoRecibido; }
+    public void setMontoRecibido(Double montoRecibido) { this.montoRecibido = montoRecibido; }
+
+    public Double getVuelto() { return vuelto; }
+    public void setVuelto(Double vuelto) { this.vuelto = vuelto; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+}

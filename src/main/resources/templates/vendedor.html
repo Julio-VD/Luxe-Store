@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXE | Terminal Punto de Venta (POS)</title>
+
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- ICONOS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- CSS PROPIO -->
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body class="bg-light">
+
+    <div class="d-flex min-vh-100">
+
+        <!-- BARRA LATERAL CAJERO -->
+        <aside class="sidebar p-3 d-flex flex-column justify-content-between">
+            <div>
+                <div class="logo-sidebar text-center mb-4">
+                    <h2>LUXE</h2>
+                    <p class="text-gold small mb-0">TERMINAL POS CAJA</p>
+                </div>
+
+                <nav class="nav flex-column gap-2">
+                    <a href="#" class="menu-item activo" onclick="mostrarSeccion('terminal', this)">
+                        <i class="bi bi-cart-check me-2"></i> Terminal de Venta
+                    </a>
+                    <a href="#" class="menu-item" onclick="mostrarSeccion('misVentas', this)">
+                        <i class="bi bi-receipt me-2"></i> Mis Ventas del Día
+                    </a>
+                </nav>
+            </div>
+
+            <div class="user-info pt-3 border-top border-secondary text-center">
+                <p class="mb-1 text-light small fw-bold" th:text="${usuarioLogueado.nombreCompleto}">Cajero</p>
+                <span class="badge bg-secondary" th:text="${usuarioLogueado.rol}">VENDEDOR</span>
+                <div class="mt-3">
+                    <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm w-100">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL POS -->
+        <main class="flex-grow-1 p-4 overflow-auto">
+
+            <!-- 1. TERMINAL DE VENTA -->
+            <section id="terminal" class="seccion-sistema activa">
+                <div class="row g-4">
+
+                    <!-- COLUMNA IZQUIERDA: CATÁLOGO DE PRODUCTOS -->
+                    <div class="col-lg-7">
+                        <div class="card bg-white shadow-sm border-0 mb-3">
+                            <div class="card-body">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" id="buscarPos" class="form-control border-start-0" placeholder="Buscar prendas por nombre, código o categoría..." onkeyup="filtrarCatalogoPos()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- REJILLA DE PRODUCTOS -->
+                        <div class="row g-3" id="gridProductosPos">
+                            <div class="col-md-6 col-lg-4 item-producto-pos" th:each="p : ${productos}"
+                                 th:data-nombre="${p.nombre}"
+                                 th:data-codigo="${p.codigo}"
+                                 th:data-categoria="${p.categoria}">
+                                <div class="card card-producto border-0 shadow-sm h-100">
+                                    <div class="producto-img-box">
+                                        <img th:src="${p.imagenUrl != null and !p.imagenUrl.isEmpty() ? p.imagenUrl : '/img/productos/default.png'}"
+                                             th:alt="${p.nombre}"
+                                             onerror="this.src='/img/productos/default.png'">
+                                    </div>
+                                    <div class="card-body d-flex flex-column justify-content-between text-center pt-2">
+                                        <div>
+                                            <span class="badge bg-dark mb-2" th:text="${p.categoria}">Categoría</span>
+                                            <h6 class="fw-bold text-dark mb-1" th:text="${p.nombre}">Polo Luxe</h6>
+                                            <p class="text-muted small mb-2">Talla: <strong th:text="${p.talla}">M</strong> | Color: <span th:text="${p.color}">Negro</span></p>
+                                            <h5 class="text-gold fw-bold" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}">S/ 45.00</h5>
+                                            <p class="small text-muted mb-0">Stock: <strong th:id="'stock-val-' + ${p.id}" th:text="${p.stock}">25</strong> disp.</p>
+                                        </div>
+                                        <button class="btn btn-outline-dark btn-sm w-100 mt-3"
+                                                th:data-id="${p.id}"
+                                                th:data-nombre="${p.nombre}"
+                                                th:data-precio="${p.precio}"
+                                                th:data-stock="${p.stock}"
+                                                onclick="agregarAlCarrito(this.getAttribute('data-id'), this.getAttribute('data-nombre'), parseFloat(this.getAttribute('data-precio')), parseInt(this.getAttribute('data-stock')))">
+                                            <i class="bi bi-cart-plus me-1"></i> Agregar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- COLUMNA DERECHA: TICKET / CARRITO DE VENTA -->
+                    <div class="col-lg-5">
+                        <div class="card bg-white shadow-sm border-0 sticky-top" style="top: 20px;">
+                            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                                <h5 class="mb-0 fw-bold"><i class="bi bi-receipt me-2"></i> Ticket de Venta</h5>
+                                <span class="badge bg-gold text-dark" id="ticketNumero">NUEVA VENTA</span>
+                            </div>
+
+                            <div class="card-body">
+                                <!-- SELECCIÓN DE CLIENTE -->
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Cliente</label>
+                                    <div class="input-group">
+                                        <select id="selectClientePos" class="form-select">
+                                            <option value="">-- Cliente General / Venta Rápida --</option>
+                                            <option th:each="c : ${clientes}" th:value="${c.numeroDocumento}" th:text="${c.nombres + ' (' + c.numeroDocumento + ')'}"></option>
+                                        </select>
+                                        <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoClientePos">
+                                            <i class="bi bi-person-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- TABLA CARRITO -->
+                                <div class="table-responsive mb-3" style="max-height: 250px;">
+                                    <table class="table table-sm align-middle" id="tablaCarritoPos">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Prenda</th>
+                                                <th style="width: 70px;">Cant.</th>
+                                                <th>Subtotal</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bodyCarritoPos">
+                                            <tr id="emptyCarritoRow">
+                                                <td colspan="4" class="text-center text-muted py-4">No hay productos agregados al ticket.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- RESUMEN DE TOTALES -->
+                                <div class="bg-light p-3 rounded mb-3 border">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted">Subtotal (sin IGV):</span>
+                                        <span id="posSubtotalText">S/ 0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted">IGV (18%):</span>
+                                        <span id="posIgvText">S/ 0.00</span>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="fw-bold mb-0">TOTAL GENERAL:</h5>
+                                        <h4 class="fw-bold text-success mb-0" id="posTotalText">S/ 0.00</h4>
+                                    </div>
+                                </div>
+
+                                <!-- MEDIO DE PAGO -->
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Medio de Pago</label>
+                                        <select id="posMetodoPago" class="form-select">
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Tarjeta">Tarjeta</option>
+                                            <option value="Yape/Plin">Yape / Plin</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Monto Recibido</label>
+                                        <input type="number" step="0.10" id="posMontoRecibido" class="form-control" placeholder="0.00" onkeyup="calcularVueltoPos()">
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-warning-subtle rounded border border-warning" id="boxVuelto">
+                                    <span class="small fw-bold">Vuelto a Entregar:</span>
+                                    <span class="fw-bold text-dark fs-5" id="posVueltoText">S/ 0.00</span>
+                                </div>
+
+                                <!-- BOTONES DE ACCIÓN -->
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success py-2 fw-bold" onclick="confirmarYProcesarVenta()">
+                                        <i class="bi bi-check-circle me-1"></i> Procesar y Emitir Ticket
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="vaciarCarritoPos()">
+                                        <i class="bi bi-x-circle me-1"></i> Cancelar Venta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- 2. MIS VENTAS DEL DÍA -->
+            <section id="misVentas" class="seccion-sistema">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold py-3">
+                        <i class="bi bi-receipt me-2"></i> Mis Ventas Realizadas
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Medio Pago</th>
+                                    <th>Monto Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="mv : ${misVentas}">
+                                    <td class="fw-bold" th:text="${mv.numeroTicket}">#TLX-000</td>
+                                    <td th:text="${mv.fecha}">01/01/2026</td>
+                                    <td th:text="${mv.cliente != null ? mv.cliente.nombres : 'Cliente General'}">Cliente</td>
+                                    <td th:text="${mv.metodoPago}">Efectivo</td>
+                                    <td class="fw-bold text-success" th:text="'S/ ' + ${#numbers.formatDecimal(mv.montoTotal, 1, 2)}">S/ 0.00</td>
+                                    <td>
+                                        <span class="badge bg-success" th:text="${mv.estado}">Completado</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+
+    <!-- MODAL NUEVO CLIENTE (DESDE VENDEDOR POS) -->
+    <div class="modal fade" id="modalNuevoClientePos" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i> Registrar Nuevo Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/vendedor/clientes/guardar}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Documento</label>
+                            <select name="tipoDocumento" class="form-select" required>
+                                <option value="DNI">DNI (8 dígitos)</option>
+                                <option value="RUC">RUC (11 dígitos)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Número de Documento</label>
+                            <input type="text" name="numeroDocumento" class="form-control" placeholder="Ingrese DNI o RUC" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombres / Razón Social</label>
+                            <input type="text" name="nombres" class="form-control" placeholder="Ej. Ana Torres Velásquez" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" name="telefono" class="form-control" placeholder="987654321">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Correo</label>
+                                <input type="email" name="correo" class="form-control" placeholder="cliente@correo.com">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-gold text-dark fw-bold">Guardar Cliente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JS BOOTSTRAP -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/sistema.js}"></script>
+    <script>
+        let carrito = [];
+
+        function agregarAlCarrito(id, nombre, precio, stockMax) {
+            let item = carrito.find(i => i.id === id);
+            if (item) {
+                if (item.cantidad < stockMax) {
+                    item.cantidad++;
+                } else {
+                    alert("Stock máximo alcanzado para esta prenda.");
+                }
+            } else {
+                carrito.push({ id: id, nombre: nombre, precio: precio, cantidad: 1, stockMax: stockMax });
+            }
+            renderizarCarrito();
+        }
+
+        function modificarCantidad(id, cambio) {
+            let item = carrito.find(i => i.id === id);
+            if (item) {
+                item.cantidad += cambio;
+                if (item.cantidad <= 0) {
+                    carrito = carrito.filter(i => i.id !== id);
+                } else if (item.cantidad > item.stockMax) {
+                    item.cantidad = item.stockMax;
+                    alert("Stock máximo alcanzado.");
+                }
+            }
+            renderizarCarrito();
+        }
+
+        function eliminarDelCarrito(id) {
+            carrito = carrito.filter(i => i.id !== id);
+            renderizarCarrito();
+        }
+
+        function vaciarCarritoPos() {
+            carrito = [];
+            renderizarCarrito();
+        }
+
+        function renderizarCarrito() {
+            const body = document.getElementById("bodyCarritoPos");
+            if (carrito.length === 0) {
+                body.innerHTML = '<tr id="emptyCarritoRow"><td colspan="4" class="text-center text-muted py-4">No hay productos agregados al ticket.</td></tr>';
+                document.getElementById("posSubtotalText").innerText = "S/ 0.00";
+                document.getElementById("posIgvText").innerText = "S/ 0.00";
+                document.getElementById("posTotalText").innerText = "S/ 0.00";
+                calcularVueltoPos();
+                return;
+            }
+
+            let html = "";
+            let total = 0;
+
+            carrito.forEach(item => {
+                let sub = item.precio * item.cantidad;
+                total += sub;
+                html += `
+                    <tr>
+                        <td>
+                            <div class="fw-bold small">${item.nombre}</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">S/ ${item.precio.toFixed(2)} c/u</div>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary px-1" onclick="modificarCantidad(${item.id}, -1)">-</button>
+                                <span class="btn btn-light px-2 border disabled fw-bold">${item.cantidad}</span>
+                                <button class="btn btn-outline-secondary px-1" onclick="modificarCantidad(${item.id}, 1)">+</button>
+                            </div>
+                        </td>
+                        <td class="fw-bold text-dark">S/ ${sub.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-link text-danger p-0" onclick="eliminarDelCarrito(${item.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            body.innerHTML = html;
+
+            let subtotalSinIgv = total / 1.18;
+            let igv = total - subtotalSinIgv;
+
+            document.getElementById("posSubtotalText").innerText = "S/ " + subtotalSinIgv.toFixed(2);
+            document.getElementById("posIgvText").innerText = "S/ " + igv.toFixed(2);
+            document.getElementById("posTotalText").innerText = "S/ " + total.toFixed(2);
+
+            calcularVueltoPos();
+        }
+
+        function calcularVueltoPos() {
+            let totalStr = document.getElementById("posTotalText").innerText.replace("S/ ", "");
+            let total = parseFloat(totalStr) || 0;
+            let recibido = parseFloat(document.getElementById("posMontoRecibido").value) || 0;
+            let vuelto = Math.max(0, recibido - total);
+            document.getElementById("posVueltoText").innerText = "S/ " + vuelto.toFixed(2);
+        }
+
+        function filtrarCatalogoPos() {
+            let query = document.getElementById("buscarPos").value.toLowerCase();
+            let items = document.querySelectorAll(".item-producto-pos");
+            items.forEach(item => {
+                let nombre = item.getAttribute("data-nombre").toLowerCase();
+                let codigo = item.getAttribute("data-codigo").toLowerCase();
+                let categoria = item.getAttribute("data-categoria").toLowerCase();
+                if (nombre.includes(query) || codigo.includes(query) || categoria.includes(query)) {
+                    item.style.display = "";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        function confirmarYProcesarVenta() {
+            if (carrito.length === 0) {
+                alert("Agregue al menos una prenda al ticket para procesar la venta.");
+                return;
+            }
+
+            let docCliente = document.getElementById("selectClientePos").value;
+            let metodoPago = document.getElementById("posMetodoPago").value;
+            let montoRecibido = parseFloat(document.getElementById("posMontoRecibido").value) || 0;
+
+            let totalStr = document.getElementById("posTotalText").innerText.replace("S/ ", "");
+            let total = parseFloat(totalStr) || 0;
+
+            if (metodoPago === "Efectivo" && montoRecibido < total) {
+                alert("El monto recibido es menor al total de la venta.");
+                return;
+            }
+
+            // Construir string de detalles productoId:cantidad;
+            let detallesStr = carrito.map(i => i.id + ":" + i.cantidad).join(";");
+
+            let formData = new FormData();
+            formData.append("clienteDocumento", docCliente);
+            formData.append("metodoPago", metodoPago);
+            formData.append("montoRecibido", montoRecibido || total);
+            formData.append("detallesStr", detallesStr);
+
+            fetch('/vendedor/ventas/procesar', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.text())
+            .then(data => {
+                if (data.startsWith("OK:")) {
+                    let ticketNum = data.split(":")[1];
+                    alert("¡Venta procesada exitosamente!\nN° Ticket Emitido: " + ticketNum);
+                    vaciarCarritoPos();
+                    window.location.reload();
+                } else {
+                    alert("Error al procesar venta.");
+                }
+            })
+            .catch(err => console.error(err));
+        }
+    </script>
+</body>
+</html>
