@@ -15,7 +15,7 @@
     <artifactId>luxe-store</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>Luxe-Store</name>
-    <description>Sistema Web POS para Tienda de Ropa Luxe - Avance 2 (Thymeleaf, Spring Boot y Almacenamiento Local en Memoria / LocalStorage)</description>
+    <description>Sistema Web POS para Tienda de Ropa Luxe - Avance 2 (Thymeleaf, Spring Boot y Almacenamiento en Memoria)</description>
 
     <properties>
         <java.version>17</java.version>

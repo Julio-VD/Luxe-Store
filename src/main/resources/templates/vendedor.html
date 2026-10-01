@@ -21,10 +21,7 @@
             <div>
                 <div class="logo-sidebar text-center mb-4">
                     <h2>LUXE</h2>
-                    <p class="text-gold small mb-1">TERMINAL POS CAJA</p>
-                    <span class="badge bg-success-subtle text-success border border-success" style="font-size: 0.65rem;">
-                        <i class="bi bi-hdd-fill me-1"></i> Memoria &amp; LocalStorage
-                    </span>
+                    <p class="text-gold small mb-0">TERMINAL POS CAJA</p>
                 </div>
 
                 <nav class="nav flex-column gap-2">
@@ -299,6 +296,12 @@
     <script>
         let carrito = [];
 
+        function guardarCarritoSesion() {
+            try {
+                sessionStorage.setItem('luxe_pos_carrito', JSON.stringify(carrito));
+            } catch (e) {}
+        }
+
         function agregarAlCarrito(id, nombre, precio, stockMax) {
             if (stockMax <= 0) {
                 alert("Esta prenda se encuentra sin stock disponible.");
@@ -314,7 +317,7 @@
             } else {
                 carrito.push({ id: id, nombre: nombre, precio: precio, cantidad: 1, stockMax: stockMax });
             }
-            if (window.LuxeStorage) LuxeStorage.guardarCarrito(carrito);
+            guardarCarritoSesion();
             renderizarCarrito();
         }
 
@@ -329,19 +332,19 @@
                     alert("Stock máximo alcanzado.");
                 }
             }
-            if (window.LuxeStorage) LuxeStorage.guardarCarrito(carrito);
+            guardarCarritoSesion();
             renderizarCarrito();
         }
 
         function eliminarDelCarrito(id) {
             carrito = carrito.filter(i => i.id !== id);
-            if (window.LuxeStorage) LuxeStorage.guardarCarrito(carrito);
+            guardarCarritoSesion();
             renderizarCarrito();
         }
 
         function vaciarCarritoPos() {
             carrito = [];
-            if (window.LuxeStorage) LuxeStorage.limpiarCarrito();
+            try { sessionStorage.removeItem('luxe_pos_carrito'); } catch (e) {}
             renderizarCarrito();
         }
 
@@ -455,17 +458,7 @@
             .then(data => {
                 if (data.startsWith("OK:")) {
                     let ticketNum = data.split(":")[1];
-                    if (window.LuxeStorage) {
-                        LuxeStorage.guardarVenta({
-                            numeroTicket: ticketNum,
-                            fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString().slice(0,5),
-                            cliente: { nombres: docCliente ? ("Doc: " + docCliente) : "Cliente General" },
-                            metodoPago: metodoPago,
-                            montoTotal: total,
-                            estado: "Completado"
-                        });
-                        LuxeStorage.limpiarCarrito();
-                    }
+                    try { sessionStorage.removeItem('luxe_pos_carrito'); } catch (e) {}
                     alert("¡Venta procesada exitosamente!\nN° Ticket Emitido: " + ticketNum);
                     vaciarCarritoPos();
                     window.location.reload();
@@ -477,22 +470,15 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-            // Sincronizar automáticamente datos locales del servidor a LocalStorage
-            if (window.LuxeStorage) {
-                Promise.all([
-                    fetch('/api/productos').then(r => r.json()).catch(() => []),
-                    fetch('/api/clientes').then(r => r.json()).catch(() => []),
-                    fetch('/api/ventas').then(r => r.json()).catch(() => [])
-                ]).then(([prods, clis, vts]) => {
-                    LuxeStorage.sincronizarConServidor(prods, clis, vts);
-                });
-
-                // Restaurar carrito guardado en LocalStorage
-                const savedCarrito = LuxeStorage.getCarrito();
-                if (savedCarrito && savedCarrito.length > 0) {
-                    carrito = savedCarrito;
+            // Restaurar carrito temporal del cajero en caso de recarga accidental de página (F5)
+            try {
+                const saved = sessionStorage.getItem('luxe_pos_carrito');
+                if (saved) {
+                    carrito = JSON.parse(saved) || [];
                     renderizarCarrito();
                 }
+            } catch (e) {
+                carrito = [];
             }
         });
     </script>
