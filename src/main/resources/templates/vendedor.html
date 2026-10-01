@@ -21,7 +21,10 @@
             <div>
                 <div class="logo-sidebar text-center mb-4">
                     <h2>LUXE</h2>
-                    <p class="text-gold small mb-0">TERMINAL POS CAJA</p>
+                    <p class="text-gold small mb-1">TERMINAL POS CAJA</p>
+                    <span class="badge bg-success-subtle text-success border border-success" style="font-size: 0.65rem;">
+                        <i class="bi bi-hdd-fill me-1"></i> Memoria &amp; LocalStorage
+                    </span>
                 </div>
 
                 <nav class="nav flex-column gap-2">
@@ -311,6 +314,7 @@
             } else {
                 carrito.push({ id: id, nombre: nombre, precio: precio, cantidad: 1, stockMax: stockMax });
             }
+            if (window.LuxeStorage) LuxeStorage.guardarCarrito(carrito);
             renderizarCarrito();
         }
 
@@ -325,16 +329,19 @@
                     alert("Stock máximo alcanzado.");
                 }
             }
+            if (window.LuxeStorage) LuxeStorage.guardarCarrito(carrito);
             renderizarCarrito();
         }
 
         function eliminarDelCarrito(id) {
             carrito = carrito.filter(i => i.id !== id);
+            if (window.LuxeStorage) LuxeStorage.guardarCarrito(carrito);
             renderizarCarrito();
         }
 
         function vaciarCarritoPos() {
             carrito = [];
+            if (window.LuxeStorage) LuxeStorage.limpiarCarrito();
             renderizarCarrito();
         }
 
@@ -448,6 +455,17 @@
             .then(data => {
                 if (data.startsWith("OK:")) {
                     let ticketNum = data.split(":")[1];
+                    if (window.LuxeStorage) {
+                        LuxeStorage.guardarVenta({
+                            numeroTicket: ticketNum,
+                            fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString().slice(0,5),
+                            cliente: { nombres: docCliente ? ("Doc: " + docCliente) : "Cliente General" },
+                            metodoPago: metodoPago,
+                            montoTotal: total,
+                            estado: "Completado"
+                        });
+                        LuxeStorage.limpiarCarrito();
+                    }
                     alert("¡Venta procesada exitosamente!\nN° Ticket Emitido: " + ticketNum);
                     vaciarCarritoPos();
                     window.location.reload();
@@ -457,6 +475,26 @@
             })
             .catch(err => console.error(err));
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Sincronizar automáticamente datos locales del servidor a LocalStorage
+            if (window.LuxeStorage) {
+                Promise.all([
+                    fetch('/api/productos').then(r => r.json()).catch(() => []),
+                    fetch('/api/clientes').then(r => r.json()).catch(() => []),
+                    fetch('/api/ventas').then(r => r.json()).catch(() => [])
+                ]).then(([prods, clis, vts]) => {
+                    LuxeStorage.sincronizarConServidor(prods, clis, vts);
+                });
+
+                // Restaurar carrito guardado en LocalStorage
+                const savedCarrito = LuxeStorage.getCarrito();
+                if (savedCarrito && savedCarrito.length > 0) {
+                    carrito = savedCarrito;
+                    renderizarCarrito();
+                }
+            }
+        });
     </script>
 </body>
 </html>
