@@ -91,4 +91,14 @@ public class AdminController {
         }
         return "redirect:/admin";
     }
+
+    @PostMapping("/productos/aumentar-stock")
+    public String aumentarStock(@RequestParam Long productoId, @RequestParam int cantidad, RedirectAttributes redirectAttributes) {
+        if (productoService.aumentarStock(productoId, cantidad)) {
+            redirectAttributes.addFlashAttribute("mensaje", "Stock de la prenda aumentado correctamente.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "No se pudo aumentar el stock. Verifique la prenda y la cantidad.");
+        }
+        return "redirect:/admin";
+    }
 }

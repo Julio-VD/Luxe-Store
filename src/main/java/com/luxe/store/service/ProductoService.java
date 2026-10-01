@@ -89,4 +89,25 @@ public class ProductoService {
         }
         return false;
     }
+
+    public boolean aumentarStock(Long id, int cantidad) {
+        if (cantidad <= 0) {
+            return false;
+        }
+
+        Optional<Producto> opt = productoRepository.findById(id);
+        if (opt.isPresent()) {
+            Producto p = opt.get();
+            int stockActual = p.getStock() == null ? 0 : p.getStock();
+            p.setStock(stockActual + cantidad);
+
+            if ("Agotado".equalsIgnoreCase(p.getEstado()) && p.getStock() > 0) {
+                p.setEstado("Activo");
+            }
+
+            productoRepository.save(p);
+            return true;
+        }
+        return false;
+    }
 }
