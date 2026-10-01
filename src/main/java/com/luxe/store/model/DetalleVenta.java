@@ -1,26 +1,13 @@
 package com.luxe.store.model;
 
-import jakarta.persistence.*;
+import java.io.Serializable;
 
-@Entity
-@Table(name = "detalle_ventas")
-public class DetalleVenta {
+public class DetalleVenta implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
-
-    @Column(nullable = false)
     private Integer cantidad;
-
-    @Column(nullable = false)
     private Double precioUnitario;
-
-    @Column(nullable = false)
     private Double subtotal;
 
     public DetalleVenta() {}

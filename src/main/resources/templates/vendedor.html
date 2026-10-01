@@ -83,15 +83,23 @@
                                             <h6 class="fw-bold text-dark mb-1" th:text="${p.nombre}">Polo Luxe</h6>
                                             <p class="text-muted small mb-2">Talla: <strong th:text="${p.talla}">M</strong> | Color: <span th:text="${p.color}">Negro</span></p>
                                             <h5 class="text-gold fw-bold" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}">S/ 45.00</h5>
-                                            <p class="small text-muted mb-0">Stock: <strong th:id="'stock-val-' + ${p.id}" th:text="${p.stock}">25</strong> disp.</p>
+                                            <p class="small text-muted mb-0">
+                                                Stock: 
+                                                <span th:if="${p.stock &lt;= 0}" class="badge bg-danger">Agotado (0)</span>
+                                                <strong th:if="${p.stock &gt; 0}" th:id="'stock-val-' + ${p.id}" th:text="${p.stock}">25</strong>
+                                                <span th:if="${p.stock &gt; 0}">disp.</span>
+                                            </p>
                                         </div>
-                                        <button class="btn btn-outline-dark btn-sm w-100 mt-3"
+                                        <button th:if="${p.stock &gt; 0}" class="btn btn-outline-dark btn-sm w-100 mt-3"
                                                 th:data-id="${p.id}"
                                                 th:data-nombre="${p.nombre}"
                                                 th:data-precio="${p.precio}"
                                                 th:data-stock="${p.stock}"
                                                 onclick="agregarAlCarrito(this.getAttribute('data-id'), this.getAttribute('data-nombre'), parseFloat(this.getAttribute('data-precio')), parseInt(this.getAttribute('data-stock')))">
                                             <i class="bi bi-cart-plus me-1"></i> Agregar
+                                        </button>
+                                        <button th:if="${p.stock &lt;= 0}" class="btn btn-secondary btn-sm w-100 mt-3" disabled>
+                                            <i class="bi bi-slash-circle me-1"></i> Sin Stock
                                         </button>
                                     </div>
                                 </div>
@@ -288,7 +296,17 @@
     <script>
         let carrito = [];
 
+        function guardarCarritoSesion() {
+            try {
+                sessionStorage.setItem('luxe_pos_carrito', JSON.stringify(carrito));
+            } catch (e) {}
+        }
+
         function agregarAlCarrito(id, nombre, precio, stockMax) {
+            if (stockMax <= 0) {
+                alert("Esta prenda se encuentra sin stock disponible.");
+                return;
+            }
             let item = carrito.find(i => i.id === id);
             if (item) {
                 if (item.cantidad < stockMax) {
@@ -299,6 +317,7 @@
             } else {
                 carrito.push({ id: id, nombre: nombre, precio: precio, cantidad: 1, stockMax: stockMax });
             }
+            guardarCarritoSesion();
             renderizarCarrito();
         }
 
@@ -313,16 +332,19 @@
                     alert("Stock máximo alcanzado.");
                 }
             }
+            guardarCarritoSesion();
             renderizarCarrito();
         }
 
         function eliminarDelCarrito(id) {
             carrito = carrito.filter(i => i.id !== id);
+            guardarCarritoSesion();
             renderizarCarrito();
         }
 
         function vaciarCarritoPos() {
             carrito = [];
+            try { sessionStorage.removeItem('luxe_pos_carrito'); } catch (e) {}
             renderizarCarrito();
         }
 
@@ -436,6 +458,7 @@
             .then(data => {
                 if (data.startsWith("OK:")) {
                     let ticketNum = data.split(":")[1];
+                    try { sessionStorage.removeItem('luxe_pos_carrito'); } catch (e) {}
                     alert("¡Venta procesada exitosamente!\nN° Ticket Emitido: " + ticketNum);
                     vaciarCarritoPos();
                     window.location.reload();
@@ -445,6 +468,19 @@
             })
             .catch(err => console.error(err));
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Restaurar carrito temporal del cajero en caso de recarga accidental de página (F5)
+            try {
+                const saved = sessionStorage.getItem('luxe_pos_carrito');
+                if (saved) {
+                    carrito = JSON.parse(saved) || [];
+                    renderizarCarrito();
+                }
+            } catch (e) {
+                carrito = [];
+            }
+        });
     </script>
 </body>
 </html>

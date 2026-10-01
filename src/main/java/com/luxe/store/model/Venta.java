@@ -1,42 +1,21 @@
 package com.luxe.store.model;
 
-import jakarta.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "ventas")
-public class Venta {
+public class Venta implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(length = 30)
     private String numeroTicket;
-
-    @Column(length = 30)
     private String fecha;
-
-    @ManyToOne
-    @JoinColumn(name = "cliente_id")
     private Cliente cliente;
-
-    @Column(length = 100)
     private String vendedor;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "venta_id")
     private List<DetalleVenta> detalles = new ArrayList<>();
-
-    @Column(length = 30)
     private String metodoPago;
-
     private Double montoTotal;
     private Double montoRecibido;
     private Double vuelto;
-
-    @Column(length = 20)
     private String estado;
 
     public Venta() {}

@@ -67,16 +67,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
 
+            <!-- ALERTA ERROR FLASH -->
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}">Error en la operación.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
             <!-- ENCABEZADO DE SECCIÓN -->
             <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                 <h3 id="tituloSeccion" class="fw-bold mb-0 text-dark">Dashboard</h3>
                 <div>
-                    <a th:href="@{/reportes}" class="btn btn-gold text-dark me-2">
+                    <a th:href="@{/reportes}" class="btn btn-gold text-dark">
                         <i class="bi bi-pie-chart-fill me-1"></i> Ver Gráficos de Ventas
                     </a>
-                    <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
-                        <i class="bi bi-plus-circle me-1"></i> Nueva Prenda
-                    </button>
                 </div>
             </header>
 
@@ -186,7 +190,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <input type="text" id="buscarProducto" class="form-control w-25" placeholder="Buscar por código, nombre..." onkeyup="buscarProductos()">
                             <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
-                                <i class="bi bi-plus-circle me-1"></i> Agregar Prenda
+                                <i class="bi bi-plus-circle me-1"></i> Nueva Prenda
                             </button>
                         </div>
 
@@ -227,11 +231,10 @@
                                             <span th:class="${p.estado == 'Activo' ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${p.estado}">Activo</span>
                                         </td>
                                         <td class="text-center">
-                                            <a th:if="${p.estado == 'Activo'}" th:href="@{/admin/productos/inhabilitar/{id}(id=${p.id})}" class="btn btn-outline-warning btn-sm me-1" title="Inhabilitar" onclick="return confirm('¿Desea inhabilitar esta prenda?')">
-                                                <i class="bi bi-slash-circle"></i>
-                                            </a>
-                                            <a th:if="${p.estado != 'Activo'}" th:href="@{/admin/productos/activar/{id}(id=${p.id})}" class="btn btn-outline-success btn-sm me-1" title="Activar" onclick="return confirm('¿Desea activar esta prenda?')">
-                                                <i class="bi bi-play-circle"></i>
+                                            <a th:href="@{/admin/productos/inhabilitar/{id}(id=${p.id})}" 
+                                               th:class="${p.estado == 'Activo' ? 'btn btn-outline-warning btn-sm me-1' : 'btn btn-outline-success btn-sm me-1'}" 
+                                               th:title="${p.estado == 'Activo' ? 'Inhabilitar prenda' : 'Habilitar prenda'}">
+                                                <i th:class="${p.estado == 'Activo' ? 'bi bi-slash-circle' : 'bi bi-check-circle'}"></i>
                                             </a>
                                             <a th:href="@{/admin/productos/eliminar/{id}(id=${p.id})}" class="btn btn-outline-danger btn-sm" title="Eliminar" onclick="return confirm('¿Seguro de eliminar esta prenda?')">
                                                 <i class="bi bi-trash"></i>
@@ -263,7 +266,6 @@
                                     <th>Producto</th>
                                     <th>Stock Disponible</th>
                                     <th>Alerta de Nivel</th>
-                                    <th class="text-center">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -276,11 +278,6 @@
                                         <span th:if="${p.stock > 0 and p.stock <= 5}" class="badge bg-danger">REPOSITAR URGENTE</span>
                                         <span th:if="${p.stock > 5 and p.stock <= 15}" class="badge bg-warning text-dark">STOCK MODERADO</span>
                                         <span th:if="${p.stock > 15}" class="badge bg-success">STOCK OPTIMO</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAumentarStock" th:attr="data-producto-id=${p.id}">
-                                            <i class="bi bi-plus-lg"></i> Agregar
-                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -439,27 +436,27 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title"><i class="bi bi-box-arrow-in-up me-2"></i> Aumentar Stock</h5>
+                    <h5 class="modal-title"><i class="bi bi-box-arrow-in-up me-2"></i> Aumentar Stock de Almacén</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form th:action="@{/admin/productos/aumentar-stock}" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Seleccionar prenda</label>
-                            <select name="productoId" id="productoStockId" class="form-select" required>
+                            <label class="form-label fw-bold">Seleccionar Prenda</label>
+                            <select name="productoId" class="form-select" required>
                                 <option value="">Seleccione una prenda...</option>
                                 <option th:each="p : ${productos}" th:value="${p.id}" th:text="${p.codigo + ' - ' + p.nombre + ' (Stock actual: ' + p.stock + ')'}"></option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Unidades a aumentar</label>
-                            <input type="number" name="cantidad" class="form-control" min="1" step="1" value="1" required>
+                            <label class="form-label fw-bold">Unidades a Aumentar</label>
+                            <input type="number" name="cantidad" class="form-control" min="1" step="1" value="5" required>
                             <small class="text-muted">Indique cuántas unidades ingresarán al inventario.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-dark fw-bold"><i class="bi bi-plus-circle me-1"></i> Aumentar Stock</button>
+                        <button type="submit" class="btn btn-gold text-dark fw-bold"><i class="bi bi-plus-circle me-1"></i> Confirmar Ingreso</button>
                     </div>
                 </form>
             </div>

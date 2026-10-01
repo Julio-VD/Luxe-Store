@@ -1,31 +1,15 @@
 package com.luxe.store.model;
 
-import jakarta.persistence.*;
+import java.io.Serializable;
 
-@Entity
-@Table(name = "usuarios")
-public class Usuario {
+public class Usuario implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, length = 100)
     private String nombreCompleto;
-
-    @Column(length = 100)
     private String correoUsuario;
-
-    @Column(nullable = false, unique = true, length = 50)
     private String usuario;
-
-    @Column(nullable = false, length = 100)
     private String contrasena;
-
-    @Column(nullable = false, length = 20)
     private String rol; // "ADMIN", "VENDEDOR"
-
-    @Column(length = 20)
     private String estado;
 
     public Usuario() {}

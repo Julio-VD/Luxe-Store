@@ -56,19 +56,33 @@ public class ProductoService {
         Optional<Producto> opt = productoRepository.findById(id);
         if (opt.isPresent()) {
             Producto p = opt.get();
-            p.setEstado("Inactivo");
+            if ("Inactivo".equalsIgnoreCase(p.getEstado())) {
+                p.setEstado("Activo");
+            } else {
+                p.setEstado("Inactivo");
+            }
             productoRepository.save(p);
             return true;
         }
         return false;
     }
 
-    public boolean activar(Long id) {
+    public boolean eliminar(Long id) {
+        if (productoRepository.existsById(id)) {
+            productoRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean reducirStock(Long id, int cantidad) {
         Optional<Producto> opt = productoRepository.findById(id);
         if (opt.isPresent()) {
             Producto p = opt.get();
-            if (p.getStock() != null && p.getStock() > 0) {
-                p.setEstado("Activo");
+            if (p.getStock() >= cantidad) {
+                p.setStock(p.getStock() - cantidad);
+                // NOTA: Cuando el stock llega a 0 NO se pasa a Inactivo.
+                // Solo el Administrador decide cambiar el estado a Inactivo.
                 productoRepository.save(p);
                 return true;
             }
@@ -93,30 +107,6 @@ public class ProductoService {
 
             productoRepository.save(p);
             return true;
-        }
-        return false;
-    }
-
-    public boolean eliminar(Long id) {
-        if (productoRepository.existsById(id)) {
-            productoRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean reducirStock(Long id, int cantidad) {
-        Optional<Producto> opt = productoRepository.findById(id);
-        if (opt.isPresent()) {
-            Producto p = opt.get();
-            if (p.getStock() >= cantidad) {
-                p.setStock(p.getStock() - cantidad);
-                if (p.getStock() == 0) {
-                    p.setEstado("Agotado");
-                }
-                productoRepository.save(p);
-                return true;
-            }
         }
         return false;
     }

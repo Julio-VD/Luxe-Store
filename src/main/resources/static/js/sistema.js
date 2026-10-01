@@ -1,3 +1,7 @@
+// =========================================================
+// LUXE STORE - FUNCIONES DE NAVEGACIÓN Y VISTA (THYMELEAF)
+// =========================================================
+
 function mostrarSeccion(id, boton) {
     const secciones = document.querySelectorAll(".seccion-sistema");
     secciones.forEach(function(seccion) {
