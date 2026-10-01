@@ -56,13 +56,22 @@ public class ProductoService {
         Optional<Producto> opt = productoRepository.findById(id);
         if (opt.isPresent()) {
             Producto p = opt.get();
-            if ("Inactivo".equalsIgnoreCase(p.getEstado())) {
-                p.setEstado("Activo");
-            } else {
-                p.setEstado("Inactivo");
-            }
+            p.setEstado("Inactivo");
             productoRepository.save(p);
             return true;
+        }
+        return false;
+    }
+
+    public boolean activar(Long id) {
+        Optional<Producto> opt = productoRepository.findById(id);
+        if (opt.isPresent()) {
+            Producto p = opt.get();
+            if (p.getStock() != null && p.getStock() > 0) {
+                p.setEstado("Activo");
+                productoRepository.save(p);
+                return true;
+            }
         }
         return false;
     }
@@ -81,8 +90,9 @@ public class ProductoService {
             Producto p = opt.get();
             if (p.getStock() >= cantidad) {
                 p.setStock(p.getStock() - cantidad);
-                // NOTA: Cuando el stock llega a 0 NO se pasa a Inactivo.
-                // Solo el Administrador decide cambiar el estado a Inactivo.
+                if (p.getStock() == 0) {
+                    p.setEstado("Agotado");
+                }
                 productoRepository.save(p);
                 return true;
             }

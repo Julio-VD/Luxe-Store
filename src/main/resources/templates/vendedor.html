@@ -83,23 +83,15 @@
                                             <h6 class="fw-bold text-dark mb-1" th:text="${p.nombre}">Polo Luxe</h6>
                                             <p class="text-muted small mb-2">Talla: <strong th:text="${p.talla}">M</strong> | Color: <span th:text="${p.color}">Negro</span></p>
                                             <h5 class="text-gold fw-bold" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}">S/ 45.00</h5>
-                                            <p class="small text-muted mb-0">
-                                                Stock: 
-                                                <span th:if="${p.stock &lt;= 0}" class="badge bg-danger">Agotado (0)</span>
-                                                <strong th:if="${p.stock &gt; 0}" th:id="'stock-val-' + ${p.id}" th:text="${p.stock}">25</strong>
-                                                <span th:if="${p.stock &gt; 0}">disp.</span>
-                                            </p>
+                                            <p class="small text-muted mb-0">Stock: <strong th:id="'stock-val-' + ${p.id}" th:text="${p.stock}">25</strong> disp.</p>
                                         </div>
-                                        <button th:if="${p.stock &gt; 0}" class="btn btn-outline-dark btn-sm w-100 mt-3"
+                                        <button class="btn btn-outline-dark btn-sm w-100 mt-3"
                                                 th:data-id="${p.id}"
                                                 th:data-nombre="${p.nombre}"
                                                 th:data-precio="${p.precio}"
                                                 th:data-stock="${p.stock}"
                                                 onclick="agregarAlCarrito(this.getAttribute('data-id'), this.getAttribute('data-nombre'), parseFloat(this.getAttribute('data-precio')), parseInt(this.getAttribute('data-stock')))">
                                             <i class="bi bi-cart-plus me-1"></i> Agregar
-                                        </button>
-                                        <button th:if="${p.stock &lt;= 0}" class="btn btn-secondary btn-sm w-100 mt-3" disabled>
-                                            <i class="bi bi-slash-circle me-1"></i> Sin Stock
                                         </button>
                                     </div>
                                 </div>
