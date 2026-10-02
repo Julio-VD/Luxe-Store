@@ -37,7 +37,7 @@ public class VentaService {
             ventaRepository.save(guardada);
         }
 
-        // Deducción de stock en BD
+        // Deducción de stock en memoria
         if (venta.getDetalles() != null) {
             for (DetalleVenta det : venta.getDetalles()) {
                 if (det.getProducto() != null && det.getProducto().getId() != null) {
