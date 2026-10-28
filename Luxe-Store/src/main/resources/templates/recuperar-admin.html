@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/comunes :: head_resources('LUXE | Recuperar administrador')}"></th:block>
+</head>
+<body class="login-body">
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-7 col-lg-5">
+      <div class="login-card mx-auto">
+        <div class="text-center mb-4"><div class="logo-login">LUXE</div><h1 class="h5 mt-3">Restablecer contraseña de administrador</h1><p class="text-muted small">Esta página requiere el código configurado en Render.</p></div>
+        <div th:if="${error != null}" class="alert alert-danger" th:text="${error}" role="alert"></div>
+        <form th:action="@{/recuperar-admin}" method="post">
+          <div class="mb-3"><label class="form-label" for="token">Código de recuperación</label><input class="form-control" id="token" name="token" type="password" autocomplete="off" required></div>
+          <div class="mb-3"><label class="form-label" for="nuevaContrasena">Nueva contraseña</label><input class="form-control" id="nuevaContrasena" name="nuevaContrasena" type="password" minlength="10" autocomplete="new-password" required><div class="form-text">Mínimo 10 caracteres.</div></div>
+          <div class="mb-4"><label class="form-label" for="confirmarContrasena">Confirmar contraseña</label><input class="form-control" id="confirmarContrasena" name="confirmarContrasena" type="password" minlength="10" autocomplete="new-password" required></div>
+          <button class="btn btn-primary w-100 py-2 btn-login" type="submit">Restablecer contraseña</button>
+        </form>
+        <p class="text-center mt-3 mb-0"><a th:href="@{/}">Volver al inicio de sesión</a></p>
+      </div>
+    </div>
+  </div>
+</main>
+<th:block th:replace="~{fragments/comunes :: scripts_bootstrap}"></th:block>
+</body>
+</html>
