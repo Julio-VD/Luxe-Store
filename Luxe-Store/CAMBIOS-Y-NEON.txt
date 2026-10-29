@@ -1,0 +1,4 @@
+CAMBIOS: avisos modales en ventas y confirmaciones del administrador; texto de conteo de stock ampliado; categoría libre y sugerencias; stock por tallas S/M/L/XL como productos con códigos separados (ej. POLO01-S).
+NEON: NO hace falta crear una tabla nueva para esta implementación: cada talla es una fila en productos, con código único. El descuento de stock de ventas sigue operando sobre cada fila.
+IMPORTANTE: al crear por tallas, use un código base nuevo. La categoría se registra al guardar una prenda, no como catálogo independiente. Para cambiar el stock de una talla use Editar stock sobre su fila.
+PRUEBAS: verificar inicio Spring Boot, alta de tallas, compra de cada talla, ventanas modales y reportes. No se ha podido ejecutar una prueba de integración con Neon.
