@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/comunes :: head_resources('LUXE | Panel de Administración')}"></th:block>
+</head>
+<body th:attr="data-active-section=${activeSection}">
+
+    <div class="d-flex min-vh-100 admin-layout">
+
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="sidebar p-3 d-flex flex-column justify-content-between">
+            <div>
+                <!-- LOGO SIDEBAR (FRAGMENTO) -->
+                <div th:replace="~{fragments/comunes :: logo_sidebar('PANEL DE ADMINISTRACIÓN')}"></div>
+
+                <nav class="nav flex-column gap-2">
+                    <a href="#dashboard" class="menu-item" data-section="dashboard" >
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                    <a href="#productos" class="menu-item" data-section="productos" >
+                        <i class="bi bi-box-seam me-2"></i> Catálogo de Prendas
+                    </a>
+                    <a href="#stock" class="menu-item" data-section="stock" >
+                        <i class="bi bi-clipboard-check me-2"></i> Control de Stock
+                    </a>
+                    <a href="#ventas" class="menu-item" data-section="ventas" >
+                        <i class="bi bi-receipt me-2"></i> Historial de Ventas
+                    </a>
+                    <a href="#clientes" class="menu-item" data-section="clientes" >
+                        <i class="bi bi-people me-2"></i> Gestión de Clientes
+                    </a>
+                    <a href="#vendedores" class="menu-item" data-section="vendedores" >
+                        <i class="bi bi-person-badge me-2"></i> Administrar vendedores
+                    </a>
+                    <a href="#seguridad" class="menu-item" data-section="seguridad" >
+                        <i class="bi bi-shield-lock me-2"></i> Seguridad de la cuenta
+                    </a>
+                    <a th:href="@{/reportes}" class="menu-item text-gold fw-bold">
+                        <i class="bi bi-bar-chart-line-fill me-2"></i> Reportes & Gráficos
+                    </a>
+                </nav>
+            </div>
+
+            <!-- INFORMACIÓN DE USUARIO (FRAGMENTO) -->
+            <div th:replace="~{fragments/comunes :: user_info}"></div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="flex-grow-1 bg-light p-4 overflow-auto">
+
+            <!-- ALERTAS FLASH (FRAGMENTO) -->
+            <div th:replace="~{fragments/comunes :: alertas_flash}"></div>
+
+            <!-- ENCABEZADO DE SECCIÓN -->
+            <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <h3 id="tituloSeccion" class="fw-bold mb-0 text-dark">Dashboard</h3>
+                <div>
+                    <a th:href="@{/reportes}" class="btn btn-gold text-dark">
+                        <i class="bi bi-pie-chart-fill me-1"></i> Ver Gráficos de Ventas
+                    </a>
+                </div>
+            </header>
+
+            <!-- 1. SECCIÓN DASHBOARD -->
+            <section id="dashboard" class="seccion-sistema" th:classappend="${activeSection == 'dashboard'} ? 'activa' : ''">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stat bg-white p-3 shadow-sm border-0 border-start border-4 border-gold">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Ventas Totales</p>
+                                    <h4 class="fw-bold mb-0" th:text="'S/ ' + ${#numbers.formatDecimal(totalVentasMonto, 1, 2)}">S/ 0.00</h4>
+                                </div>
+                                <div class="stat-icon bg-light text-gold p-3 rounded-circle">
+                                    <i class="bi bi-currency-dollar fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-stat bg-white p-3 shadow-sm border-0 border-start border-4 border-primary">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Total Productos</p>
+                                    <h4 class="fw-bold mb-0" th:text="${totalProductos}">0</h4>
+                                </div>
+                                <div class="stat-icon bg-light text-primary p-3 rounded-circle">
+                                    <i class="bi bi-box-seam fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-stat bg-white p-3 shadow-sm border-0 border-start border-4 border-warning">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Stock Bajo (&le; 5)</p>
+                                    <h4 class="fw-bold mb-0 text-warning" th:text="${stockBajoCount}">0</h4>
+                                </div>
+                                <div class="stat-icon bg-light text-warning p-3 rounded-circle">
+                                    <i class="bi bi-exclamation-triangle fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-stat bg-white p-3 shadow-sm border-0 border-start border-4 border-success">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Clientes Registrados</p>
+                                    <h4 class="fw-bold mb-0" th:text="${clientes.size()}">0</h4>
+                                </div>
+                                <div class="stat-icon bg-light text-success p-3 rounded-circle">
+                                    <i class="bi bi-people fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÚLTIMAS VENTAS REGISTRADAS -->
+                <div class="card bg-white shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white fw-bold py-3 border-0">
+                        <i class="bi bi-clock-history me-2"></i> Últimas Ventas Registradas
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Vendedor</th>
+                                    <th>Medio Pago</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="v : ${ventas}">
+                                    <td class="fw-bold" th:text="${v.numeroTicket}">#TLX-0000</td>
+                                    <td th:text="${v.fecha}">01/01/2026</td>
+                                    <td th:text="${v.cliente != null ? v.cliente.nombres : 'Cliente Anónimo'}">Cliente</td>
+                                    <td th:text="${v.vendedor}">Vendedor</td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${v.metodoPago}">Efectivo</span>
+                                    </td>
+                                    <td class="fw-bold text-success" th:text="'S/ ' + ${#numbers.formatDecimal(v.montoTotal, 1, 2)}">S/ 0.00</td>
+                                    <td>
+                                        <span class="badge bg-success" th:text="${v.estado}">Completado</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table></div>
+                </div>
+            </section>
+
+
+            <!-- 2. SECCIÓN CATÁLOGO DE PRENDAS -->
+            <section id="productos" class="seccion-sistema" th:classappend="${activeSection == 'productos'} ? 'activa' : ''">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+                            <input type="text" id="buscarProducto" class="form-control flex-grow-1" style="max-width:380px;min-width:180px" placeholder="Buscar por código, nombre..." onkeyup="buscarProductos()">
+                            <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
+                                <i class="bi bi-plus-circle me-1"></i> Nueva Prenda
+                            </button>
+                        </div>
+
+                        <div class="row g-2 mb-3 filtros-inventario">
+                          <div class="col-12 col-sm-4"><select class="form-select" id="filtroCategoriaProductos" aria-label="Filtrar categoría"><option value="">Todas las categorías</option><option th:each="c : ${categorias}" th:value="${c}" th:text="${c}"></option></select></div>
+                          <div class="col-12 col-sm-4"><select class="form-select" id="filtroEstadoProductos" aria-label="Filtrar estado"><option value="">Todos los estados</option><option>Activo</option><option>Inactivo</option><option>Agotado</option></select></div>
+                          <div class="col-12 col-sm-4"><select class="form-select" id="filtroNivelProductos" aria-label="Filtrar nivel de stock"><option value="">Todo el stock</option><option value="agotado">Agotado (0)</option><option value="bajo">Bajo (1 a 5)</option><option value="moderado">Moderado (6 a 15)</option><option value="optimo">Óptimo (más de 15)</option></select></div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle" id="tablaProductos">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 50px;">Foto</th>
+                                        <th>Código</th>
+                                        <th>Prenda</th>
+                                        <th>Categoría</th>
+                                        <th>Talla</th>
+                                        <th>Color</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="p : ${productos}" th:attr="data-categoria=${p.categoria},data-estado=${p.estado},data-stock=${p.stock}">
+                                        <td>
+                                            <img th:src="${p.imagen != null and p.imagen.length > 0 ? '/productos/' + p.id + '/imagen.jpg' : '/img/productos/default.png'}"
+                                                 th:alt="${p.nombre}"
+                                                 onerror="this.src='/img/productos/default.png'"
+                                                 style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #dee2e6;">
+                                        </td>
+                                        <td class="fw-bold" th:text="${p.codigo}">PL001</td>
+                                        <td th:text="${p.nombre}">Polo</td>
+                                        <td th:text="${p.categoria}">Categoría</td>
+                                        <td th:text="${p.talla}">Talla</td>
+                                        <td th:text="${p.color}">Color</td>
+                                        <td class="fw-bold text-dark" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}">S/ 0.00</td>
+                                        <td>
+                                            <span th:class="${p.stock &lt;= 5 ? 'badge bg-danger' : 'badge bg-primary'}" th:text="${p.stock}">0</span>
+                                        </td>
+                                        <td>
+                                            <span th:class="${p.estado == 'Activo' ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${p.estado}">Activo</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a th:if="${p.estado == 'Activo'}" th:href="@{/admin/productos/inhabilitar/{id}(id=${p.id})}" class="btn btn-outline-warning btn-sm me-1" title="Inhabilitar" onclick="return confirm('¿Desea inhabilitar esta prenda?')">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </a>
+                                            <a th:if="${p.estado != 'Activo'}" th:href="@{/admin/productos/activar/{id}(id=${p.id})}" class="btn btn-outline-success btn-sm me-1" title="Activar" onclick="return confirm('¿Desea activar esta prenda?')">
+                                                <i class="bi bi-play-circle"></i>
+                                            </a>
+                                            <a th:href="@{/admin/productos/eliminar/{id}(id=${p.id})}" class="btn btn-outline-danger btn-sm" title="Eliminar" onclick="return confirm('¿Seguro de eliminar esta prenda?')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 3. SECCIÓN CONTROL DE STOCK -->
+            <section id="stock" class="seccion-sistema" th:classappend="${activeSection == 'stock'} ? 'activa' : ''">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-clipboard-check me-2"></i> Control de Stock de Almacén</span>
+                        <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalAumentarStock">
+                            <i class="bi bi-plus-circle me-1"></i> Aumentar Stock
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2 mb-3 filtros-stock"><div class="col-12 col-lg-5"><input id="buscarStock" class="form-control" type="search" placeholder="Buscar código o prenda..."></div><div class="col-6 col-lg-3"><select id="filtroNivelStock" class="form-select"><option value="">Todos los niveles</option><option value="agotado">Agotado</option><option value="bajo">Bajo</option><option value="moderado">Moderado</option><option value="optimo">Óptimo</option></select></div><div class="col-6 col-lg-4"><select id="filtroCategoriaStock" class="form-select"><option value="">Todas las categorías</option><option th:each="c : ${categorias}" th:value="${c}" th:text="${c}"></option></select></div></div>
+                        <div class="table-responsive"><table class="table table-bordered align-middle" id="tablaStock">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Stock Disponible</th>
+                                    <th>Alerta de Nivel</th>
+                                    <th class="text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="p : ${productos}" th:attr="data-categoria=${p.categoria},data-estado=${p.estado},data-stock=${p.stock}">
+                                    <td th:text="${p.codigo}">COD</td>
+                                    <td th:text="${p.nombre}">Nombre</td>
+                                    <td class="fw-bold" th:text="${p.stock}">0</td>
+                                    <td>
+                                        <span th:if="${p.stock == 0}" class="badge bg-dark">AGOTADO</span>
+                                        <span th:if="${p.stock > 0 and p.stock <= 5}" class="badge bg-danger">REPOSITAR URGENTE</span>
+                                        <span th:if="${p.stock > 5 and p.stock <= 15}" class="badge bg-warning text-dark">STOCK MODERADO</span>
+                                        <span th:if="${p.stock > 15}" class="badge bg-success">STOCK OPTIMO</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-primary btn-sm btn-editar-stock" data-bs-toggle="modal" data-bs-target="#modalEditarStock"
+                                            th:attr="data-producto-id=${p.id},data-producto-codigo=${p.codigo},data-producto-nombre=${p.nombre},data-producto-color=${p.color},data-producto-stock=${p.stock}">
+                                            <i class="bi bi-pencil-square"></i> Editar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 4. SECCIÓN HISTORIAL DE VENTAS -->
+            <section id="ventas" class="seccion-sistema" th:classappend="${activeSection == 'ventas'} ? 'activa' : ''">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold py-3">
+                        <i class="bi bi-receipt me-2"></i> Reporte Histórico de Transacciones POS
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3"><input class="form-control" type="search" placeholder="Filtrar por ticket, fecha, cliente, vendedor o medio de pago..." oninput="filtrarTabla(this, 'tablaVentasAdmin')"></div>
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle" id="tablaVentasAdmin">
+                                <thead>
+                                    <tr>
+                                        <th># Ticket</th>
+                                        <th>Fecha Hora</th>
+                                        <th>Cliente</th>
+                                        <th>Atendido por</th>
+                                        <th>Medio Pago</th>
+                                        <th>Total Transacción</th>
+                                        <th class="text-center">Detalle</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="v : ${ventas}">
+                                        <td class="fw-bold" th:text="${v.numeroTicket}">#TLX-000</td>
+                                        <td th:text="${v.fecha}">01/01/2026</td>
+                                        <td th:text="${v.cliente != null ? v.cliente.nombres : 'Cliente General'}">Cliente</td>
+                                        <td th:text="${v.vendedor}">Vendedor</td>
+                                        <td th:text="${v.metodoPago}">Efectivo</td>
+                                        <td class="fw-bold text-success" th:text="'S/ ' + ${#numbers.formatDecimal(v.montoTotal, 1, 2)}">S/ 0.00</td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-primary btn-ver-detalle-venta"
+                                                    th:data-url="@{/admin/ventas/{id}/detalle(id=${v.id})}"
+                                                    th:data-ticket="${v.numeroTicket}"
+                                                    aria-label="Ver detalle de venta" title="Ver productos comprados">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 5. SECCIÓN GESTIÓN DE CLIENTES -->
+            <section id="clientes" class="seccion-sistema" th:classappend="${activeSection == 'clientes'} ? 'activa' : ''">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold py-3">
+                        <i class="bi bi-people me-2"></i> Clientes Registrados
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3"><input class="form-control" type="search" placeholder="Filtrar clientes por documento, nombre, teléfono, correo o estado..." oninput="filtrarTabla(this, 'tablaClientes')"></div>
+                        <table class="table table-hover align-middle" id="tablaClientes">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tipo Doc</th>
+                                    <th>Documento</th>
+                                    <th>Nombres / Razón Social</th>
+                                    <th>Teléfono</th>
+                                    <th>Correo</th>
+                                    <th>Estado</th><th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="c : ${clientes}">
+                                    <td th:text="${c.tipoDocumento}">DNI</td>
+                                    <td class="fw-bold" th:text="${c.numeroDocumento}">00000000</td>
+                                    <td th:text="${c.nombres}">Nombre Cliente</td>
+                                    <td th:text="${c.telefono}">999999999</td>
+                                    <td th:text="${c.correo}">correo@dominio.com</td>
+                                    <td>
+                                        <span th:class="${c.estado == 'Activo' ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${c.estado}">Activo</span>
+                                    </td>
+                                    <td class="text-center text-nowrap">
+                                      <button type="button" class="btn btn-sm btn-outline-primary" title="Historial de compras" aria-label="Ver compras del cliente" data-bs-toggle="modal" data-bs-target="#modalComprasCliente" th:attr="data-url=@{/admin/clientes/{id}/compras(id=${c.id})},data-nombre=${c.nombres}" onclick="mostrarComprasClienteLuxe(this)"><i class="bi bi-cart3"></i></button>
+                                      <form th:action="@{/admin/clientes/estado/{id}(id=${c.id})}" method="post" class="d-inline">
+                                        <button class="btn btn-sm btn-outline-warning" type="submit" th:if="${c.estado == 'Activo'}" title="Inhabilitar cliente"><i class="bi bi-person-slash"></i></button>
+                                        <button class="btn btn-sm btn-outline-success" type="submit" th:if="${c.estado != 'Activo'}" title="Activar cliente"><i class="bi bi-person-check"></i></button>
+                                      </form>
+                                      <form th:action="@{/admin/clientes/eliminar/{id}(id=${c.id})}" method="post" class="d-inline" onsubmit="return confirm('¿Dar de baja este cliente? Se conservará el historial de ventas.')">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit" title="Dar de baja cliente"><i class="bi bi-trash"></i></button>
+                                      </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+    <section id="vendedores" class="seccion-sistema" th:classappend="${activeSection == 'vendedores'} ? 'activa' : ''">
+      <div class="card border-0 shadow-sm mb-4"><div class="card-header bg-white fw-bold py-3">Registrar vendedor</div><div class="card-body">
+        <form th:action="@{/admin/vendedores/guardar}" method="post" class="row g-3">
+          <div class="col-md-6"><label class="form-label">Nombre completo</label><input class="form-control" name="nombreCompleto" required minlength="5" maxlength="100" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]{5,100}" title="Mínimo 5 caracteres; solo letras y espacios." oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñÜü ]/g,'')"></div>
+          <div class="col-md-6"><label class="form-label">Usuario de acceso</label><input class="form-control" name="usuario" pattern="[^\s]{3,30}" title="3 a 30 caracteres sin espacios; se permiten @ y puntos" required oninput="this.value=this.value.replace(/\s/g,'')"></div>
+          <div class="col-md-6"><label class="form-label">Correo</label><input class="form-control" type="email" name="correoUsuario" pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Ingrese un correo válido con @ y sin espacios" required oninput="this.value=this.value.replace(/\s/g,'')"></div>
+          <div class="col-md-6"><label class="form-label">Contraseña temporal</label><input class="form-control" type="password" name="contrasenaTemporal" minlength="10" required><small class="text-muted">Mínimo 10 caracteres. Entrégala al vendedor por un canal seguro.</small></div>
+          <div class="col-12"><button class="btn btn-dark" type="submit"><i class="bi bi-person-plus me-1"></i> Crear vendedor</button></div>
+        </form>
+      </div></div>
+      <div class="card border-0 shadow-sm"><div class="card-header bg-white fw-bold py-3">Vendedores registrados</div><div class="card-body">
+        <div class="mb-3"><input class="form-control" type="search" placeholder="Filtrar por nombre, usuario, correo o estado..." oninput="filtrarTabla(this, 'tablaVendedores')"></div>
+        <div class="table-responsive"><table class="table table-hover align-middle" id="tablaVendedores"><thead class="table-light"><tr><th>Nombre</th><th>Usuario</th><th>Correo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+          <tr th:each="u : ${usuarios}" th:if="${u.rol != null and u.rol.equalsIgnoreCase('VENDEDOR')}"><td th:text="${u.nombreCompleto}">Vendedor</td><td th:text="${u.usuario}">usuario</td><td th:text="${u.correoUsuario}">correo</td><td><span th:class="${u.estado == 'Activo' ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${u.estado}">Activo</span></td><td><form th:action="@{/admin/vendedores/estado/{id}(id=${u.id})}" method="post"><button class="btn btn-sm" th:classappend="${u.estado == 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" th:text="${u.estado == 'Activo' ? 'Inhabilitar' : 'Activar'}" type="submit"></button></form></td></tr>
+        </tbody></table></div>
+      </div></div>
+    </section>
+
+    <section id="seguridad" class="seccion-sistema" th:classappend="${activeSection == 'seguridad'} ? 'activa' : ''">
+    <div class="container-fluid px-4 py-3">
+        <div class="card border-0">
+            <div class="card-body">
+                <h5 class="fw-bold"><i class="bi bi-shield-lock me-2"></i>Seguridad de la cuenta</h5>
+                <p class="text-muted small">Cambia la contraseña de administrador. Usa al menos 10 caracteres.</p>
+                <form th:action="@{/admin/contrasena}" method="post" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Contraseña actual</label>
+                        <input type="password" name="contrasenaActual" class="form-control" autocomplete="current-password" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Nueva contraseña</label>
+                        <input type="password" name="nuevaContrasena" class="form-control" minlength="10" autocomplete="new-password" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Confirmar nueva contraseña</label>
+                        <input type="password" name="confirmarContrasena" class="form-control" minlength="10" autocomplete="new-password" required>
+                    </div>
+                    <div class="col-12 d-flex flex-wrap gap-2 align-items-center">
+                        <button class="btn btn-dark" type="submit"><i class="bi bi-check-circle me-1"></i> Actualizar contraseña</button>
+                        <a class="btn btn-outline-secondary" th:href="@{/recuperar-admin}">
+                            <i class="bi bi-key me-1"></i> ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    </section>
+
+        </main>
+    </div>
+
+
+    <script>
+      function filtrarTabla(input, tablaId) {
+        const q = (input.value || '').toLocaleLowerCase('es');
+        document.querySelectorAll('#' + tablaId + ' tbody tr').forEach(tr => { tr.style.display = tr.innerText.toLocaleLowerCase('es').includes(q) ? '' : 'none'; });
+      }
+    </script>
+    <div class="modal fade" id="modalComprasCliente" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white"><h5 class="modal-title"><i class="bi bi-cart3 me-2"></i>Historial de compras — <span id="comprasClienteNombre"></span></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+          <div class="modal-body">
+            <div id="comprasClienteMensaje" class="text-muted mb-2" role="status">Cargando compras...</div>
+            <div class="table-responsive"><table class="table table-hover align-middle" id="comprasClienteTabla" hidden>
+              <thead class="table-light"><tr><th>Ticket</th><th>Fecha</th><th>Vendedor</th><th>Medio de pago</th><th class="text-end">Total</th><th>Estado</th><th>Detalle</th></tr></thead>
+              <tbody id="comprasClienteFilas"></tbody>
+            </table></div>
+            <div id="comprasClienteResumen" class="text-end fw-bold"></div>
+          </div>
+          <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      async function mostrarComprasClienteLuxe(btn) {
+        const nombre = document.getElementById('comprasClienteNombre');
+        const mensaje = document.getElementById('comprasClienteMensaje');
+        const tabla = document.getElementById('comprasClienteTabla');
+        const filas = document.getElementById('comprasClienteFilas');
+        const resumen = document.getElementById('comprasClienteResumen');
+        nombre.textContent = btn.dataset.nombre || 'Cliente';
+        mensaje.textContent = 'Cargando compras...'; mensaje.hidden = false;
+        tabla.hidden = true; filas.replaceChildren(); resumen.textContent = '';
+        try {
+          const respuesta = await fetch(btn.dataset.url, {headers: {'Accept':'application/json'}, credentials:'same-origin'});
+          if (!respuesta.ok) throw new Error('No se pudo consultar el historial de compras.');
+          const compras = await respuesta.json();
+          if (!Array.isArray(compras) || compras.length === 0) {
+            mensaje.textContent = 'Este cliente aún no tiene compras registradas.'; return;
+          }
+          const soles = n => 'S/ ' + Number(n || 0).toFixed(2);
+          compras.forEach(v => {
+            const tr = document.createElement('tr');
+            [v.ticket, v.fecha, v.vendedor, v.metodoPago, soles(v.total), v.estado].forEach((valor, i) => {
+              const td = document.createElement('td'); td.textContent = valor ?? '—';
+              if (i === 4) td.className = 'text-end text-success fw-semibold';
+              tr.appendChild(td);
+            });
+            const td = document.createElement('td');
+            const detalle = document.createElement('button');
+            detalle.type = 'button'; detalle.className = 'btn btn-sm btn-outline-primary';
+            detalle.title = 'Ver productos del ticket'; detalle.textContent = 'Ver ticket';
+            detalle.addEventListener('click', () => {
+              const original = document.querySelector('#tablaVentasAdmin button.btn-ver-detalle-venta[data-ticket="' + CSS.escape(v.ticket || '') + '"]');
+              if (!original) { alert('No se encontró el detalle del ticket.'); return; }
+              bootstrap.Modal.getOrCreateInstance(document.getElementById('modalComprasCliente')).hide();
+              original.click();
+            });
+            td.appendChild(detalle); tr.appendChild(td); filas.appendChild(tr);
+          });
+          tabla.hidden = false; mensaje.hidden = true;
+          const total = compras.reduce((s, v) => s + (Number(v.total) || 0), 0);
+          resumen.textContent = compras.length + ' compra(s) registrada(s) · Total histórico: ' + soles(total);
+        } catch (error) { mensaje.textContent = error.message || 'Error al cargar las compras.'; }
+      }
+    </script>
+    <!-- MODAL NUEVA PRENDA (SPRING BOOT FORM) -->
+    <div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i> Registrar Nueva Prenda</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/productos/guardar}" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Código de Producto</label>
+                            <input type="text" name="codigo" id="nuevoCodigoProducto" class="form-control bg-light text-secondary" tabindex="-1" placeholder="Seleccione una categoría" readonly required>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="agregarTallas" name="agregarTallas" value="true">
+                            <label class="form-check-label" for="agregarTallas">Agregar tallas a una prenda existente</label>
+                            <small class="d-block text-muted">Active esta opción y seleccione el código base existente; solo se crearán las tallas indicadas.</small>
+                            <select class="form-select mt-2 d-none" id="codigoExistente"><option value="">Seleccione una prenda</option><option th:each="p : ${productos}" th:value="${#strings.replace(#strings.replace(#strings.replace(#strings.replace(p.codigo,'-XL',''),'-S',''),'-M',''),'-L','')}" th:text="${p.codigo + ' — ' + p.nombre}"></option></select>
+                        </div>
+                        <div id="grupoTallaOriginal" class="mb-3 d-none">
+                            <label class="form-label fw-bold">¿A qué talla pertenece el stock de la prenda original?</label>
+                            <select name="tallaOriginal" id="tallaOriginal" class="form-select"><option value="">Seleccione la talla original</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
+                            <small class="text-muted">Se cambiará el código sin crear otra prenda ni perder sus ventas.</small>
+                        </div>
+                        <div class="mb-3 datos-nueva-prenda">
+                            <label class="form-label">Nombre de Prenda</label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Ej. Polo Casual Algodón" required>
+                        </div>
+                        <div class="row datos-nueva-prenda">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Categoría</label>
+                                <select name="categoria" id="nuevaCategoriaProducto" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione una categoría</option>
+                                    <option value="Polos">Polos</option><option value="Camisas">Camisas</option>
+                                    <option value="Poleras">Poleras</option><option value="Casacas">Casacas</option>
+                                    <option value="Chompas">Chompas</option><option value="Sudaderas">Sudaderas</option>
+                                    <option value="Vestidos">Vestidos</option><option value="Blusas">Blusas</option>
+                                    <option value="Chalecos">Chalecos</option><option value="Pantalones">Pantalones</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row datos-nueva-prenda">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Color</label>
+                                <input type="text" name="color" class="form-control" placeholder="Ej. Negro" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Precio (S/)</label>
+                                <input type="number" step="0.10" name="precio" class="form-control" placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 border rounded p-3 bg-light">
+                            <label class="form-label fw-bold">Stock por talla (obligatorio: al menos una talla con stock)</label>
+                            <p class="small mb-2">Solo se registrarán las tallas con cantidades mayores a cero. Las tallas en cero no se crearán. Al agregar tallas a una prenda existente, las registradas aparecen bloqueadas con su stock actual.</p>
+                            <div class="row g-2"><div class="col-3" th:each="t : ${ {'S','M','L','XL'} }"><label class="form-label" th:text="${t}">S</label><input class="form-control" type="number" min="0" th:name="${'stockTalla' + t}" th:attr="data-talla=${t}" placeholder="0" step="1"></div></div>
+                        </div>
+                        <div class="mb-3 datos-nueva-prenda">
+                            <label class="form-label">Adjuntar imagen de la prenda (opcional)</label>
+                            <input type="file" name="imagenArchivo" class="form-control" accept="image/jpeg,image/png,image/webp">
+                            <small class="text-muted">Se guardará como JPG directamente en Neon (máximo 5 MB). Si no adjunta imagen, se usará la imagen por defecto.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-gold text-dark fw-bold">Guardar Prenda</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AUMENTAR STOCK -->
+    <div class="modal fade" id="modalEditarStock" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+        <div class="modal-header bg-dark text-white"><h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar inventario</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <form id="formEditarStock" th:action="@{/admin/productos/stock/actualizar}" method="post" enctype="multipart/form-data" class="mb-3">
+            <input type="hidden" name="productoId" id="editarStockId">
+            <label class="form-label" for="editarStockCodigo">Código del producto</label>
+            <input class="form-control mb-3 bg-light" id="editarStockCodigo" maxlength="30" readonly tabindex="-1" required>
+            <small class="text-muted d-block mb-2">El código es fijo. Nombre, color y fotografía se aplicarán a todas las tallas de esta prenda.</small>
+            <label class="form-label" for="editarStockNombreInput">Nombre de la prenda</label>
+            <input class="form-control mb-3" name="nombre" id="editarStockNombreInput" maxlength="150" required>
+            <label class="form-label" for="editarStockColor">Color de la prenda (todas las tallas)</label>
+            <input class="form-control mb-3" name="color" id="editarStockColor" maxlength="80" required>
+            <label class="form-label" for="editarStockCantidad">Conteo físico de prendas (stock final)</label>
+            <input class="form-control" type="number" min="0" step="1" name="stockActualizado" id="editarStockCantidad" required>
+            <div class="form-text fs-6 fw-semibold text-dark">Escriba la cantidad total contada en almacén; puede aumentar o reducir el stock.</div>
+            <label class="form-label mt-3" for="editarStockImagen">Cambiar imagen de la prenda (opcional)</label>
+            <input type="file" class="form-control" id="editarStockImagen" name="imagenArchivo" accept="image/jpeg,image/png,image/webp">
+            <div class="form-text">Deje vacío para conservar la imagen actual.</div>
+            <button class="btn btn-dark mt-3" type="submit"><i class="bi bi-check-lg me-1"></i>Guardar conteo</button>
+          </form>
+
+        </div>
+      </div></div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      document.querySelectorAll('.btn-editar-stock').forEach(function(btn){btn.addEventListener('click',function(){
+        const id=this.dataset.productoId; document.getElementById('editarStockId').value=id;
+        document.getElementById('editarStockNombreInput').value=this.dataset.productoNombre;
+        document.getElementById('editarStockCodigo').value=this.dataset.productoCodigo || '';
+        document.getElementById('editarStockColor').value=this.dataset.productoColor || '';
+        document.getElementById('editarStockCantidad').value=this.dataset.productoStock;
+      });});
+    });
+    </script>
+
+    <div class="modal fade" id="modalAumentarStock" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-box-arrow-in-up me-2"></i> Aumentar Stock</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/productos/aumentar-stock}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Seleccionar prenda</label>
+                            <select name="productoId" id="productoStockId" class="form-select" required>
+                                <option value="">Seleccione una prenda...</option>
+                                <option th:each="p : ${productos}" th:value="${p.id}" th:text="${p.codigo + ' - ' + p.nombre + ' (Stock actual: ' + p.stock + ')'}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Unidades a aumentar</label>
+                            <input type="number" name="cantidad" class="form-control" min="1" step="1" value="1" required>
+                            <small class="text-muted">Indique cuántas unidades ingresarán al inventario.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-dark fw-bold"><i class="bi bi-plus-circle me-1"></i> Aumentar Stock</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- MODAL: DETALLE DE UNA VENTA -->
+    <div class="modal fade" id="modalDetalleVenta" tabindex="-1" aria-labelledby="modalDetalleVentaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <div>
+                        <h5 class="modal-title" id="modalDetalleVentaLabel"><i class="bi bi-receipt me-2"></i>Detalle de venta</h5>
+                        <small id="detalleVentaTicket" class="text-white-50">Ticket</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="detalleVentaCargando" class="text-center py-5 d-none">
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+                        <p class="text-muted mt-2 mb-0">Consultando los productos de la venta...</p>
+                    </div>
+                    <div id="detalleVentaError" class="alert alert-danger d-none" role="alert"></div>
+                    <div id="detalleVentaContenido" class="d-none">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Fecha y hora</small><strong id="detalleVentaFecha">-</strong></div></div>
+                            <div class="col-md-4"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Cliente</small><strong id="detalleVentaCliente">-</strong><div class="small text-muted" id="detalleVentaDocumento"></div></div></div>
+                            <div class="col-md-4"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Atendido por</small><strong id="detalleVentaVendedor">-</strong></div></div>
+                            <div class="col-md-6"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Medio de pago</small><strong id="detalleVentaPago">-</strong></div></div>
+                            <div class="col-md-6"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Estado</small><strong id="detalleVentaEstado">-</strong></div></div>
+                        </div>
+                        <h6 class="fw-bold mb-3">Productos comprados</h6>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered align-middle">
+                                <thead class="table-light"><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Talla</th><th>Color</th><th class="text-end">Cantidad</th><th class="text-end">Precio unitario</th><th class="text-end">Subtotal</th></tr></thead>
+                                <tbody id="detalleVentaProductos"></tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3"><div class="text-end"><div class="text-muted small">Total de la venta</div><div class="fs-4 fw-bold text-success" id="detalleVentaTotal">S/ 0,00</div></div></div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS BOOTSTRAP (FRAGMENTO) -->
+    <th:block th:replace="~{fragments/comunes :: scripts_bootstrap}"></th:block>
+    <script th:src="@{/js/sistema.js(v=20261029navfix4)}"></script>
+
+<div class="modal fade" id="modalAvisoGlobal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header" id="cabeceraAvisoGlobal"><h5 class="modal-title" id="tituloAvisoGlobal">Aviso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="textoAvisoGlobal"></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="confirmarAvisoGlobal" type="button">Aceptar</button></div></div></div></div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+ const modalEl=document.getElementById('modalAvisoGlobal'), modal=bootstrap.Modal.getOrCreateInstance(modalEl);
+ const titulo=document.getElementById('tituloAvisoGlobal'), mensaje=document.getElementById('textoAvisoGlobal'), aceptar=document.getElementById('confirmarAvisoGlobal');
+ window.mostrarAvisoLuxe=function(texto, accion){ titulo.textContent=accion?'Confirmar acción':'Aviso'; mensaje.textContent=texto; aceptar.textContent=accion?'Confirmar':'Entendido'; modalEl.querySelector('#cabeceraAvisoGlobal').className='modal-header '+(accion?'bg-dark text-white':/inhabilit|no se pudo|error|insuficiente/i.test(texto)?'bg-danger text-white':'bg-success text-white'); modalEl.querySelector('.btn-secondary').style.display=accion?'':'none'; aceptar.onclick=function(){modal.hide(); if(accion)accion()}; modal.show(); };
+ document.querySelectorAll('a[onclick*="confirm("],form[onsubmit*="confirm("]').forEach(el=>{
+  const codigo=el.getAttribute(el.tagName==='FORM'?'onsubmit':'onclick')||'';
+  const match=codigo.match(/confirm\(['"]([^'"]+)['"]\)/); if(!match)return;
+  el.removeAttribute(el.tagName==='FORM'?'onsubmit':'onclick');
+  el.addEventListener(el.tagName==='FORM'?'submit':'click',function(ev){ev.preventDefault(); mostrarAvisoLuxe(match[1],()=>{if(el.tagName==='FORM')HTMLFormElement.prototype.submit.call(el);else location.href=el.href;});});
+ });
+ const alertas=document.querySelectorAll('.alert:not(.alert-permanente)');
+ alertas.forEach(a=>{if(a.closest('.modal'))return; const txt=a.textContent.trim();if(txt && (a.classList.contains('alert-success')||a.classList.contains('alert-danger'))) {a.style.display='none';setTimeout(()=>mostrarAvisoLuxe((a.classList.contains('alert-danger')?'Error: ':'')+txt),200);}});
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+ const modalNuevo=document.getElementById('modalNuevoProducto');
+ const categoria=document.getElementById('nuevaCategoriaProducto'), codigo=document.getElementById('nuevoCodigoProducto');
+ const agregar=document.getElementById('agregarTallas'), existentes=document.getElementById('codigoExistente');
+ const tallas=[...modalNuevo.querySelectorAll('[data-talla]')];
+ const camposNuevos=[...modalNuevo.querySelectorAll('.datos-nueva-prenda')];
+ const productos=Array.from(document.querySelectorAll('#tablaProductos tbody tr')).map(r=>({
+   codigo:r.cells[1]?.textContent.trim()||'', nombre:r.cells[2]?.textContent.trim()||'',
+   categoria:r.cells[3]?.textContent.trim()||'', color:r.cells[5]?.textContent.trim()||'',
+   precio:r.cells[6]?.textContent.replace(/[^\d.]/g,'')||'', stock:Number(r.dataset.stock||0)
+ }));
+ const baseDe=c=>c.replace(/-(S|M|L|XL)$/i,'');
+ const opciones=new Map(); productos.forEach(p=>{const b=baseDe(p.codigo);if(b&&!opciones.has(b))opciones.set(b,p);});
+ existentes.innerHTML='<option value="">Seleccione una prenda existente</option>';
+ opciones.forEach((p,b)=>{const opt=document.createElement('option');opt.value=b;opt.textContent=b+' — '+p.nombre;existentes.appendChild(opt);});
+ async function actualizarCodigo(){
+   if(agregar.checked){codigo.value=existentes.value;return;}
+   codigo.value='';if(!categoria.value)return;
+   try{const r=await fetch('/admin/productos/siguiente-codigo?categoria='+encodeURIComponent(categoria.value));if(r.ok)codigo.value=(await r.json()).codigo||'';}catch(e){console.error(e);}
+ }
+ function actualizarModo(){
+   const existente=agregar.checked;
+   existentes.classList.toggle('d-none',!existente);existentes.required=existente;
+   camposNuevos.forEach(el=>{el.classList.toggle('d-none',existente);el.querySelectorAll('input,select').forEach(input=>{input.disabled=existente;});});
+   if(!existente){document.getElementById('grupoTallaOriginal').classList.add('d-none');document.getElementById('tallaOriginal').required=false;tallas.forEach(input=>{input.disabled=false;input.readOnly=false;input.classList.remove('bg-secondary-subtle');input.value='';});}
+   else actualizarExistente();
+   actualizarCodigo();
+ }
+ function actualizarExistente(){
+   const b=existentes.value, p=opciones.get(b);
+   if(p){
+     modalNuevo.querySelector('[name="nombre"]').value=p.nombre;
+     categoria.value=p.categoria;
+     modalNuevo.querySelector('[name="color"]').value=p.color;
+     modalNuevo.querySelector('[name="precio"]').value=p.precio;
+   }
+   const legado=productos.find(x=>x.codigo.toUpperCase()===b.toUpperCase());
+   const grupo=document.getElementById('grupoTallaOriginal'), selector=document.getElementById('tallaOriginal');
+   grupo.classList.toggle('d-none',!legado);selector.required=!!legado;
+   if(!legado)selector.value='';
+   tallas.forEach(input=>{
+     const pr=productos.find(x=>x.codigo.toUpperCase()===(b+'-'+input.dataset.talla).toUpperCase());
+     input.value=pr?pr.stock:'';input.readOnly=!!pr;
+     input.classList.toggle('bg-secondary-subtle',!!pr);
+     input.disabled=!!pr;
+     input.title=pr?'Talla registrada: stock actual '+pr.stock:'Talla disponible para registrar';
+   });
+   if(legado && selector.value){const casilla=tallas.find(x=>x.dataset.talla===selector.value);if(casilla){casilla.value=legado.stock;casilla.disabled=true;casilla.readOnly=true;casilla.classList.add('bg-secondary-subtle');}}
+   codigo.value=b;
+ }
+ document.getElementById('tallaOriginal')?.addEventListener('change',actualizarExistente);
+ categoria?.addEventListener('change',actualizarCodigo);
+ agregar?.addEventListener('change',actualizarModo);
+ existentes?.addEventListener('change',actualizarExistente);
+ modalNuevo.querySelector('form')?.addEventListener('submit',e=>{
+   if(tallas.some(input=>!input.disabled && input.value.trim()!=='' && (!Number.isInteger(Number(input.value)) || Number(input.value)<0))){
+     e.preventDefault();window.mostrarAvisoLuxe?.('Ingrese cantidades enteras mayores o iguales a cero.');return;
+   }
+   if(!tallas.some(input=>!input.disabled&&input.value.trim()!==''&&Number(input.value)>0) && !(agregar.checked && document.getElementById('tallaOriginal').value)){
+     e.preventDefault();window.mostrarAvisoLuxe?.('Ingrese stock mayor a cero en al menos una talla disponible.');
+   }
+ });
+ actualizarModo();
+ const nivel=n=>n===0?'agotado':n<=5?'bajo':n<=15?'moderado':'optimo';
+ function filtrar(tabla, busqueda, categoriaId, estadoId, nivelId){
+   const q=(document.getElementById(busqueda)?.value||'').toLowerCase(),c=document.getElementById(categoriaId)?.value||'',e=document.getElementById(estadoId)?.value||'',n=document.getElementById(nivelId)?.value||'';
+   document.querySelectorAll('#'+tabla+' tbody tr').forEach(row=>{const cantidad=Number(row.dataset.stock||0);row.style.display=(!q||row.textContent.toLowerCase().includes(q))&&(!c||row.dataset.categoria===c)&&(!e||row.dataset.estado===e)&&(!n||nivel(cantidad)===n)?'':'none';});
+ }
+ const filtros = Array.of(
+    Array.of('tablaProductos','buscarProducto','filtroCategoriaProductos','filtroEstadoProductos','filtroNivelProductos'),
+    Array.of('tablaStock','buscarStock','filtroCategoriaStock',null,'filtroNivelStock')
+  );
+ filtros.forEach(f=>{f.slice(1).filter(Boolean).forEach(id=>document.getElementById(id)?.addEventListener('input',()=>filtrar(...f)));});
+});
+</script>
+<style>
+#modalNuevoProducto .modal-dialog,#modalEditarStock .modal-dialog{max-width:min(800px,calc(100vw - 20px))}
+#modalNuevoProducto .modal-content,#modalEditarStock .modal-content{max-height:calc(100dvh - 24px)}
+#modalNuevoProducto .modal-body,#modalEditarStock .modal-body{overflow-y:auto}
+#tablaProductos,#tablaStock{min-width:760px}
+.filtros-stock .form-control,.filtros-stock .form-select{width:100%;min-width:0}
+#nuevoCodigoProducto,#editarStockCodigo{background:#e9ecef!important;color:#555;cursor:default;caret-color:transparent}
+#modalNuevoProducto input[readonly],#modalNuevoProducto input:disabled{cursor:default}
+@media(max-width:575px){#modalNuevoProducto .modal-dialog,#modalEditarStock .modal-dialog{margin:10px auto;width:calc(100% - 20px)}.filtros-inventario{margin-top:8px}#modalNuevoProducto .col-3{width:50%} .card-body{padding:12px}}
+</style>
+<script>
+(function () {
+  function activar(id) {
+    const seccion = document.getElementById(id);
+    if (!seccion || !seccion.classList.contains('seccion-sistema')) return;
+    document.querySelectorAll('.seccion-sistema').forEach(el => {
+      el.classList.toggle('activa', el === seccion);
+      el.style.display = el === seccion ? 'block' : 'none';
+    });
+    document.querySelectorAll('.menu-item[data-section]').forEach(el => {
+      const activo = el.dataset.section === id;
+      el.classList.toggle('activo', activo);
+      if (activo) el.setAttribute('aria-current','page');
+      else el.removeAttribute('aria-current');
+    });
+    const titulos = {dashboard:'Dashboard',productos:'Catálogo de Prendas',stock:'Control de Stock',ventas:'Historial de Ventas',clientes:'Gestión de Clientes',vendedores:'Administrar vendedores',seguridad:'Seguridad de la cuenta',terminal:'Terminal de Venta',misVentas:'Mis Ventas del Día',seguridadVendedor:'Seguridad de la cuenta'};
+    const titulo = document.getElementById('tituloSeccion');
+    if (titulo) titulo.textContent = titulos[id] || titulo.textContent;
+  }
+  document.addEventListener('click', function(e) {
+    const enlace = e.target.closest('.menu-item[data-section]');
+    if (!enlace) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const id = enlace.dataset.section;
+    activar(id);
+    history.replaceState(null,'','#'+encodeURIComponent(id));
+  }, true);
+  document.addEventListener('DOMContentLoaded', function() {
+    const id = decodeURIComponent(location.hash.substring(1));
+    const inicial = document.getElementById(id)?.classList.contains('seccion-sistema') ? id :
+      (document.querySelector('.seccion-sistema.activa') || document.querySelector('.seccion-sistema'))?.id;
+    if (inicial) activar(inicial);
+  });
+  window.addEventListener('hashchange',function(){activar(decodeURIComponent(location.hash.substring(1)));});
+})();
+</script>
+</body>
+</html>
