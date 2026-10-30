@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/comunes :: head_resources('LUXE | Terminal Punto de Venta (POS)')}"></th:block>
+</head>
+<body class="bg-light">
+
+    <div class="d-flex min-vh-100 admin-layout">
+
+        <!-- BARRA LATERAL CAJERO -->
+        <aside class="sidebar p-3 d-flex flex-column justify-content-between">
+            <div>
+                <!-- LOGO SIDEBAR (FRAGMENTO) -->
+                <div th:replace="~{fragments/comunes :: logo_sidebar('TERMINAL POS CAJA')}"></div>
+
+                <nav class="nav flex-column gap-2">
+                    <a href="#terminal" class="menu-item activo" data-section="terminal" >
+                        <i class="bi bi-cart-check me-2"></i> Terminal de Venta
+                    </a>
+                    <a href="#misVentas" class="menu-item" data-section="misVentas" >
+                        <i class="bi bi-receipt me-2"></i> Mis Ventas del Día
+                    </a>
+                    <a href="#seguridadVendedor" class="menu-item" data-section="seguridadVendedor" >
+                        <i class="bi bi-shield-lock me-2"></i> Seguridad de la cuenta
+                    </a>
+                </nav>
+            </div>
+
+            <!-- INFORMACIÓN DE USUARIO (FRAGMENTO) -->
+            <div th:replace="~{fragments/comunes :: user_info}"></div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL POS -->
+        <main class="flex-grow-1 p-4 overflow-auto">
+            <div th:replace="~{fragments/comunes :: alertas_flash}"></div>
+
+            <!-- Seguridad de la cuenta del vendedor -->
+            <section id="seguridadVendedor" class="seccion-sistema" th:classappend="${activeSection == 'seguridadVendedor'} ? 'activa' : ''">
+                <div class="card border-0 shadow-sm"><div class="card-body p-4">
+                    <h4 class="fw-bold mb-2"><i class="bi bi-shield-lock me-2"></i>Seguridad de la cuenta</h4>
+                    <p class="text-muted">Cambia tu contraseña. Debe tener al menos 10 caracteres.</p>
+                    <form th:action="@{/vendedor/contrasena}" method="post" class="row g-3">
+                        <div class="col-md-4"><label class="form-label">Contraseña actual</label><input class="form-control" type="password" name="contrasenaActual" autocomplete="current-password" required></div>
+                        <div class="col-md-4"><label class="form-label">Nueva contraseña</label><input class="form-control" type="password" name="nuevaContrasena" minlength="10" autocomplete="new-password" required></div>
+                        <div class="col-md-4"><label class="form-label">Confirmar contraseña</label><input class="form-control" type="password" name="confirmarContrasena" minlength="10" autocomplete="new-password" required></div>
+                        <div class="col-12"><button class="btn btn-dark" type="submit">Actualizar contraseña</button></div>
+                    </form>
+                </div></div>
+            </section>
+
+            <!-- 1. TERMINAL DE VENTA -->
+            <section id="terminal" class="seccion-sistema" th:classappend="${activeSection == 'terminal'} ? 'activa' : ''">
+                <div class="row g-4">
+
+                    <!-- COLUMNA IZQUIERDA: CATÁLOGO DE PRODUCTOS -->
+                    <div class="col-lg-7 pos-catalogo-col">
+                        <div class="card bg-white shadow-sm border-0 mb-3">
+                            <div class="card-body">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" id="buscarPos" class="form-control border-start-0" placeholder="Buscar prendas por nombre, código o categoría..." onkeyup="filtrarCatalogoPos()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- REJILLA DE PRODUCTOS -->
+                        <div class="row g-3" id="gridProductosPos">
+                            <div class="col-md-6 col-lg-4 item-producto-pos" th:each="p : ${productosAgrupados}"
+                                 th:data-nombre="${p.nombre}"
+                                 th:data-codigo="${p.codigo}"
+                                 th:data-categoria="${p.categoria}">
+                                <div class="card card-producto border-0 shadow-sm h-100">
+                                    <div class="producto-img-box">
+                                        <img th:src="${p.imagen != null and p.imagen.length > 0 ? '/productos/' + p.id + '/imagen.jpg' : '/img/productos/default.png'}"
+                                             th:alt="${p.nombre}"
+                                             onerror="this.src='/img/productos/default.png'">
+                                    </div>
+                                    <div class="card-body d-flex flex-column justify-content-between text-center pt-2">
+                                        <div>
+                                            <span class="badge bg-dark mb-2" th:text="${p.categoria}">Categoría</span>
+                                            <h6 class="fw-bold text-dark mb-1" th:text="${p.nombre}">Polo Luxe</h6>
+                                            <p class="text-muted small mb-2">Color: <span th:text="${p.color}">Negro</span></p>
+                                            <h5 class="text-gold fw-bold" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}">S/ 45.00</h5>
+
+                                        </div>
+                                        <button class="btn btn-outline-dark btn-sm w-100 mt-3"
+                                                th:data-id="${p.id}"
+                                                th:data-nombre="${p.nombre}"
+                                                th:data-precio="${p.precio}"
+                                                th:data-stock="${p.stock}"
+                                                onclick="abrirSelectorTalla(this.getAttribute('data-id'))">
+                                            <i class="bi bi-cart-plus me-1"></i> Agregar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- COLUMNA DERECHA: TICKET / CARRITO DE VENTA -->
+                    <div class="col-lg-5 pos-ticket-col">
+                        <div class="card bg-white shadow-sm border-0 sticky-top" style="top: 20px;">
+                            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                                <h5 class="mb-0 fw-bold"><i class="bi bi-receipt me-2"></i> Ticket de Venta</h5>
+                                <span class="badge bg-gold text-dark" id="ticketNumero">NUEVA VENTA</span>
+                            </div>
+
+                            <div class="card-body">
+                                <!-- SELECCIÓN DE CLIENTE -->
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Cliente</label>
+                                    <div class="input-group">
+                                        <select id="selectClientePos" class="form-select">
+                                            <option value="">-- Cliente General / Venta Rápida --</option>
+                                            <option th:each="c : ${clientes}" th:value="${c.numeroDocumento}" th:text="${c.nombres + ' (' + c.numeroDocumento + ')'}"></option>
+                                        </select>
+                                        <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modalNuevoClientePos">
+                                            <i class="bi bi-person-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- TABLA CARRITO -->
+                                <div class="table-responsive mb-3 carrito-pos-contenedor" style="max-height: 250px;">
+                                    <table class="table table-sm align-middle" id="tablaCarritoPos">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Prenda</th>
+                                                <th style="width: 118px;">Cant.</th>
+                                                <th style="width: 96px;">Subtotal</th>
+                                                <th style="width: 28px;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bodyCarritoPos">
+                                            <tr id="emptyCarritoRow">
+                                                <td colspan="4" class="text-center text-muted py-4">No hay productos agregados al ticket.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- RESUMEN DE TOTALES -->
+                                <div class="bg-light p-3 rounded mb-3 border">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted">Subtotal (sin IGV):</span>
+                                        <span id="posSubtotalText">S/ 0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted">IGV (18%):</span>
+                                        <span id="posIgvText">S/ 0.00</span>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="fw-bold mb-0">TOTAL GENERAL:</h5>
+                                        <h4 class="fw-bold text-success mb-0" id="posTotalText">S/ 0.00</h4>
+                                    </div>
+                                </div>
+
+                                <!-- MEDIO DE PAGO -->
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Medio de Pago</label>
+                                        <select id="posMetodoPago" class="form-select">
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Tarjeta">Tarjeta</option>
+                                            <option value="Yape/Plin">Yape / Plin</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6" id="contenedorMontoRecibido">
+                                        <label class="form-label small fw-bold" id="labelMontoRecibido">Monto Recibido</label>
+                                        <input type="number" step="0.10" min="0" id="posMontoRecibido" class="form-control" placeholder="0.00" oninput="calcularVueltoPos()">
+                                        <div id="pagoVerificadoBox" class="d-none mt-1"><button type="button" class="btn btn-sm btn-outline-success w-100" id="btnPagoVerificado" onclick="alternarPagoVerificado()"><i class="bi bi-shield-check me-1"></i>Pago verificado</button></div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-warning-subtle rounded border border-warning" id="boxVuelto">
+                                    <span class="small fw-bold">Vuelto a Entregar:</span>
+                                    <span class="fw-bold text-dark fs-5" id="posVueltoText">S/ 0.00</span>
+                                </div>
+
+                                <!-- BOTONES DE ACCIÓN -->
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success py-2 fw-bold" onclick="confirmarYProcesarVenta()">
+                                        <i class="bi bi-check-circle me-1"></i> Procesar y Emitir Ticket
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="vaciarCarritoPos()">
+                                        <i class="bi bi-x-circle me-1"></i> Cancelar Venta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- 2. MIS VENTAS DEL DÍA -->
+            <section id="misVentas" class="seccion-sistema">
+                <div class="card bg-white shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold py-3">
+                        <i class="bi bi-receipt me-2"></i> Mis Ventas Realizadas
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Medio Pago</th>
+                                    <th>Monto Total</th>
+                                    <th>Estado</th>
+                                    <th class="text-center">Detalle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="mv : ${misVentas}">
+                                    <td class="fw-bold" th:text="${mv.numeroTicket}">#TLX-000</td>
+                                    <td th:text="${mv.fecha}">01/01/2026</td>
+                                    <td th:text="${mv.cliente != null ? mv.cliente.nombres : 'Cliente General'}">Cliente</td>
+                                    <td th:text="${mv.metodoPago}">Efectivo</td>
+                                    <td class="fw-bold text-success" th:text="'S/ ' + ${#numbers.formatDecimal(mv.montoTotal, 1, 2)}">S/ 0.00</td>
+                                    <td>
+                                        <span class="badge bg-success" th:text="${mv.estado}">Completado</span>
+                                    </td>
+                                    <td class="text-center"><button type="button" class="btn btn-sm btn-outline-primary btn-ver-detalle-venta" th:attr="data-url=@{/vendedor/ventas/{id}/detalle(id=${mv.id})},data-ticket=${mv.numeroTicket}" title="Ver detalle de venta" aria-label="Ver detalle de venta"><i class="bi bi-eye"></i> Ver</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+
+    <div class="modal fade" id="modalDetalleVenta" tabindex="-1" aria-labelledby="modalDetalleVentaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <div>
+                        <h5 class="modal-title" id="modalDetalleVentaLabel"><i class="bi bi-receipt me-2"></i>Detalle de venta</h5>
+                        <small id="detalleVentaTicket" class="text-white-50">Ticket</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="detalleVentaCargando" class="text-center py-5 d-none">
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+                        <p class="text-muted mt-2 mb-0">Consultando los productos de la venta...</p>
+                    </div>
+                    <div id="detalleVentaError" class="alert alert-danger d-none" role="alert"></div>
+                    <div id="detalleVentaContenido" class="d-none">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Fecha y hora</small><strong id="detalleVentaFecha">-</strong></div></div>
+                            <div class="col-md-4"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Cliente</small><strong id="detalleVentaCliente">-</strong><div class="small text-muted" id="detalleVentaDocumento"></div></div></div>
+                            <div class="col-md-4"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Atendido por</small><strong id="detalleVentaVendedor">-</strong></div></div>
+                            <div class="col-md-6"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Medio de pago</small><strong id="detalleVentaPago">-</strong></div></div>
+                            <div class="col-md-6"><div class="border rounded p-3 h-100"><small class="text-muted d-block">Estado</small><strong id="detalleVentaEstado">-</strong></div></div>
+                        </div>
+                        <h6 class="fw-bold mb-3">Productos comprados</h6>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered align-middle">
+                                <thead class="table-light"><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Talla</th><th>Color</th><th class="text-end">Cantidad</th><th class="text-end">Precio unitario</th><th class="text-end">Subtotal</th></tr></thead>
+                                <tbody id="detalleVentaProductos"></tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3"><div class="text-end"><div class="text-muted small">Total de la venta</div><div class="fs-4 fw-bold text-success" id="detalleVentaTotal">S/ 0,00</div></div></div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL NUEVO CLIENTE (DESDE VENDEDOR POS) -->
+    <div class="modal fade" id="modalNuevoClientePos" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i> Registrar Nuevo Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/vendedor/clientes/guardar}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Documento</label>
+                            <select name="tipoDocumento" id="tipoDocumentoCliente" class="form-select" required onchange="actualizarValidacionDocumento(this)">
+                                <option value="DNI">DNI (8 dígitos)</option>
+                                <option value="RUC">RUC (11 dígitos)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Número de Documento</label>
+                            <input type="text" name="numeroDocumento" id="numeroDocumentoCliente" class="form-control" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" title="El DNI debe tener 8 dígitos" placeholder="Ingrese DNI o RUC" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombres / Razón Social</label>
+                            <input type="text" name="nombres" id="nombresCliente" class="form-control" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]{2,100}" title="Ingrese solo letras y espacios" placeholder="Ej. Ana Torres Velásquez" maxlength="100" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" name="telefono" class="form-control" inputmode="numeric" pattern="9[0-9]{8}" minlength="9" maxlength="9" title="Ingrese un celular peruano de 9 dígitos que empiece con 9" placeholder="987654321" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Correo</label>
+                                <input type="email" name="correo" class="form-control" maxlength="120" placeholder="cliente@correo.com" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-gold text-dark fw-bold">Guardar Cliente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="modalResultadoVenta" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+        <div class="modal-header bg-success text-white"><h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Venta registrada</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body" id="mensajeResultadoVenta">La venta se procesó correctamente.</div>
+        <div class="modal-footer"><button type="button" class="btn btn-success" data-bs-dismiss="modal">Aceptar</button></div>
+      </div></div>
+    </div>
+
+    <!-- JS BOOTSTRAP (FRAGMENTO) -->
+    <div class="modal fade" id="modalPagoPendiente" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-warning"><h5 class="modal-title">Pago pendiente de verificación</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Debe marcar <strong>Pago verificado</strong> antes de confirmar la venta con tarjeta.</div><div class="modal-footer"><button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button></div></div></div></div>
+    <div class="modal fade" id="modalSeleccionTalla" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title" id="tituloSeleccionTalla">Seleccionar talla y cantidad</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Talla disponible</label><select id="tallaVenta" class="form-select mb-2" onchange="actualizarStockTallaVenta()"></select><p id="stockTallaVenta" class="small text-muted"></p><label class="form-label">Cantidad</label><input type="number" min="1" value="1" id="cantidadTallaVenta" class="form-control"></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success" onclick="confirmarSeleccionTalla()">Agregar al ticket</button></div></div></div></div>
+    <script th:inline="javascript">
+      window.variantesPos = /*[[${variantesPos}]]*/ [];
+    </script>
+    <th:block th:replace="~{fragments/comunes :: scripts_bootstrap}"></th:block>
+    <script th:src="@{/js/sistema.js(v=20261029navfix4)}"></script>
+    <script>
+        let carrito = [];
+
+        function guardarCarritoSesion() {
+            try {
+                sessionStorage.setItem('luxe_pos_carrito', JSON.stringify(carrito));
+            } catch (e) {}
+        }
+
+        let variantesSeleccionadas = [];
+        function baseCodigoPos(c){return (c||'').replace(/-(S|M|L|XL)$/i,'');}
+        function abrirSelectorTalla(id){
+          const producto=window.variantesPos.find(p=>Number(p.id)===Number(id));if(!producto)return;
+          const base=baseCodigoPos(producto.codigo);
+          variantesSeleccionadas=window.variantesPos.filter(p=>baseCodigoPos(p.codigo)===base && Number(p.stock)>0 && p.estado==='Activo');
+          const selector=document.getElementById('tallaVenta');selector.replaceChildren();
+          variantesSeleccionadas.forEach(p=>{const opt=document.createElement('option');opt.value=p.id;opt.textContent=(p.talla||p.codigo.split('-').pop())+' — '+p.stock+' disponibles';selector.append(opt);});
+          if(!variantesSeleccionadas.length){mostrarAvisoPos('No hay tallas disponibles para esta prenda.');return;}
+          document.getElementById('tituloSeleccionTalla').textContent='Agregar '+producto.nombre;
+          actualizarStockTallaVenta();bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSeleccionTalla')).show();
+        }
+        function actualizarStockTallaVenta(){const p=variantesSeleccionadas.find(p=>String(p.id)===document.getElementById('tallaVenta').value);if(!p)return;document.getElementById('stockTallaVenta').textContent='Stock disponible: '+p.stock;const c=document.getElementById('cantidadTallaVenta');c.max=p.stock;c.value=1;}
+        function confirmarSeleccionTalla(){
+          const p=variantesSeleccionadas.find(p=>String(p.id)===document.getElementById('tallaVenta').value);
+          if(!p)return;const cant=Number(document.getElementById('cantidadTallaVenta').value);
+          const ya=carrito.find(x=>x.id===Number(p.id));
+          if(!Number.isInteger(cant)||cant<1||cant+(ya?.cantidad||0)>p.stock){mostrarAvisoPos('Cantidad inválida o stock insuficiente.');return;}
+          for(let i=0;i<cant;i++)agregarAlCarrito(p.id,p.nombre+' - Talla '+(p.talla||'Única'),p.precio,p.stock);
+          bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSeleccionTalla')).hide();
+        }
+
+        function agregarAlCarrito(id, nombre, precio, stockMax) {
+            id = Number(id); stockMax = Number(stockMax); precio = Number(precio);
+            if (stockMax <= 0) {
+                mostrarAvisoPos("Esta prenda se encuentra sin stock disponible.");
+                return;
+            }
+            let item = carrito.find(i => i.id === id);
+            if (item) {
+                if (item.cantidad < stockMax) {
+                    item.cantidad++;
+                } else {
+                    mostrarAvisoPos("Stock máximo alcanzado para esta prenda.");
+                }
+            } else {
+                carrito.push({ id: id, nombre: nombre, precio: precio, cantidad: 1, stockMax: stockMax });
+            }
+            guardarCarritoSesion();
+            renderizarCarrito();
+        }
+
+        function modificarCantidad(id, cambio) {
+            id = Number(id); cambio = Number(cambio);
+            let item = carrito.find(i => i.id === id);
+            if (item) {
+                item.cantidad += cambio;
+                if (item.cantidad <= 0) {
+                    carrito = carrito.filter(i => i.id !== id);
+                } else if (item.cantidad > item.stockMax) {
+                    item.cantidad = item.stockMax;
+                    mostrarAvisoPos("Stock máximo alcanzado.");
+                }
+            }
+            guardarCarritoSesion();
+            renderizarCarrito();
+        }
+
+        function eliminarDelCarrito(id) {
+            id = Number(id);
+            carrito = carrito.filter(i => i.id !== id);
+            guardarCarritoSesion();
+            renderizarCarrito();
+        }
+
+        function vaciarCarritoPos() {
+            carrito = [];
+            try { sessionStorage.removeItem('luxe_pos_carrito'); sessionStorage.removeItem('luxe_solicitud_venta'); } catch (e) {}
+            renderizarCarrito();
+        }
+
+        function renderizarCarrito() {
+            const body = document.getElementById("bodyCarritoPos");
+            if (carrito.length === 0) {
+                body.innerHTML = '<tr id="emptyCarritoRow"><td colspan="4" class="text-center text-muted py-4">No hay productos agregados al ticket.</td></tr>';
+                document.getElementById("posSubtotalText").innerText = "S/ 0.00";
+                document.getElementById("posIgvText").innerText = "S/ 0.00";
+                document.getElementById("posTotalText").innerText = "S/ 0.00";
+                calcularVueltoPos();
+                return;
+            }
+
+            let html = "";
+            let total = 0;
+
+            carrito.forEach(item => {
+                let sub = item.precio * item.cantidad;
+                total += sub;
+                html += `
+                    <tr>
+                        <td>
+                            <div class="fw-bold small">${item.nombre}</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">S/ ${item.precio.toFixed(2)} c/u</div>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm carrito-cantidad">
+                                <button type="button" class="btn btn-outline-secondary px-2" aria-label="Disminuir cantidad" onclick="modificarCantidad(${item.id}, -1)">−</button>
+                                <span class="btn btn-light px-2 border disabled fw-bold">${item.cantidad}</span>
+                                <button type="button" class="btn btn-outline-secondary px-2" aria-label="Aumentar cantidad" onclick="modificarCantidad(${item.id}, 1)">+</button>
+                            </div>
+                        </td>
+                        <td class="fw-bold text-dark carrito-monto">S/ ${sub.toFixed(2)}</td>
+                        <td class="carrito-eliminar">
+                            <button type="button" class="btn btn-link text-danger p-0" aria-label="Eliminar producto" onclick="eliminarDelCarrito(${item.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            body.innerHTML = html;
+
+            let subtotalSinIgv = total / 1.18;
+            let igv = total - subtotalSinIgv;
+
+            document.getElementById("posSubtotalText").innerText = "S/ " + subtotalSinIgv.toFixed(2);
+            document.getElementById("posIgvText").innerText = "S/ " + igv.toFixed(2);
+            document.getElementById("posTotalText").innerText = "S/ " + total.toFixed(2);
+
+            calcularVueltoPos();
+        }
+
+        function mostrarAvisoPagoPendiente() {
+            const el = document.getElementById('modalPagoPendiente');
+            if (el && window.bootstrap) bootstrap.Modal.getOrCreateInstance(el).show();
+            else mostrarAvisoPos('Falta verificar el pago con tarjeta antes de procesar la venta.');
+        }
+        let pagoVerificado = false;
+        function actualizarInterfazPago() {
+            const metodo = document.getElementById("posMetodoPago").value;
+            const efectivo = metodo === "Efectivo";
+            document.getElementById("posMontoRecibido").classList.toggle("d-none", !efectivo);
+            document.getElementById("labelMontoRecibido").textContent = efectivo ? "Monto Recibido" : "Confirmación de pago";
+            document.getElementById("pagoVerificadoBox").classList.toggle("d-none", efectivo);
+            document.getElementById("boxVuelto").classList.toggle("d-none", !efectivo);
+            if (!efectivo) { document.getElementById("posMontoRecibido").value = ""; }
+            const btn = document.getElementById("btnPagoVerificado");
+            if (btn) { btn.classList.toggle("btn-success", pagoVerificado); btn.classList.toggle("btn-outline-success", !pagoVerificado); btn.innerHTML = pagoVerificado ? '<i class="bi bi-check-circle-fill me-1"></i>Pago verificado' : '<i class="bi bi-shield-check me-1"></i>Marcar pago verificado'; }
+        }
+        function alternarPagoVerificado() { pagoVerificado = !pagoVerificado; actualizarInterfazPago(); }
+        document.addEventListener("DOMContentLoaded", function(){ const m=document.getElementById("posMetodoPago"); if(m){m.addEventListener("change", function(){ pagoVerificado = false; actualizarInterfazPago(); }); actualizarInterfazPago();} });
+
+        function calcularVueltoPos() {
+            let totalStr = document.getElementById("posTotalText").innerText.replace("S/ ", "");
+            let total = parseFloat(totalStr) || 0;
+            const efectivo = document.getElementById("posMetodoPago").value === "Efectivo";
+            let recibido = parseFloat(document.getElementById("posMontoRecibido").value) || 0;
+            let vuelto = efectivo ? Math.max(0, recibido - total) : 0;
+            document.getElementById("posVueltoText").innerText = "S/ " + vuelto.toFixed(2);
+        }
+
+        function filtrarCatalogoPos() {
+            let query = document.getElementById("buscarPos").value.toLowerCase();
+            let items = document.querySelectorAll(".item-producto-pos");
+            items.forEach(item => {
+                let nombre = item.getAttribute("data-nombre").toLowerCase();
+                let codigo = item.getAttribute("data-codigo").toLowerCase();
+                let categoria = item.getAttribute("data-categoria").toLowerCase();
+                if (nombre.includes(query) || codigo.includes(query) || categoria.includes(query)) {
+                    item.style.display = "";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        let ventaEnProceso = false;
+        function confirmarYProcesarVenta() {
+            if (ventaEnProceso) return;
+            if (carrito.length === 0) {
+                mostrarAvisoPos("Agregue al menos una prenda al ticket para procesar la venta.");
+                return;
+            }
+
+            let docCliente = document.getElementById("selectClientePos").value;
+            let metodoPago = document.getElementById("posMetodoPago").value;
+            let montoRecibido = parseFloat(document.getElementById("posMontoRecibido").value) || 0;
+
+            let totalStr = document.getElementById("posTotalText").innerText.replace("S/ ", "");
+            let total = parseFloat(totalStr) || 0;
+
+            if (metodoPago === "Efectivo" && montoRecibido < total) {
+                mostrarAvisoPos("El monto recibido es menor al total de la venta."); return;
+            }
+            if (metodoPago !== "Efectivo" && !pagoVerificado) {
+                mostrarAvisoPagoPendiente(); return;
+            }
+            if (metodoPago !== "Efectivo") montoRecibido = total;
+
+            // Construir string de detalles productoId:cantidad;
+            let detallesStr = carrito.map(i => i.id + ":" + i.cantidad).join(";");
+
+            let formData = new FormData();
+            formData.append("clienteDocumento", docCliente);
+            formData.append("metodoPago", metodoPago);
+            formData.append("montoRecibido", montoRecibido || total);
+            formData.append("detallesStr", detallesStr);
+            let solicitudId = sessionStorage.getItem('luxe_solicitud_venta');
+            if (!solicitudId) {
+                solicitudId = crypto.randomUUID();
+                sessionStorage.setItem('luxe_solicitud_venta', solicitudId);
+            }
+            formData.append('solicitudId', solicitudId);
+            ventaEnProceso = true;
+            const botonProcesar = document.querySelector('button[onclick="confirmarYProcesarVenta()"]');
+            if (botonProcesar) { botonProcesar.disabled = true; botonProcesar.dataset.textoAnterior = botonProcesar.innerHTML; botonProcesar.textContent = 'Procesando venta...'; }
+
+            fetch('/vendedor/ventas/procesar', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.text())
+            .then(data => {
+                if (data.startsWith("OK:")) {
+                    let ticketNum = data.split(":")[1];
+                    try { sessionStorage.removeItem('luxe_pos_carrito'); sessionStorage.removeItem('luxe_solicitud_venta'); } catch (e) {}
+                    document.getElementById('mensajeResultadoVenta').textContent = '¡Venta procesada exitosamente! Número de ticket: ' + ticketNum;
+                    vaciarCarritoPos();
+                    const modalVenta = new bootstrap.Modal(document.getElementById('modalResultadoVenta'));
+                    document.getElementById('modalResultadoVenta').addEventListener('hidden.bs.modal', function recargarVenta() { window.location.reload(); }, { once: true });
+                    modalVenta.show();
+                } else {
+                    mostrarAvisoPos(data.startsWith("ERROR:") ? data.substring(6) : "No se pudo procesar la venta. Verifica los datos e inténtalo nuevamente.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                mostrarAvisoPos("No se pudo conectar con el servidor. Verifica tu conexión e inténtalo nuevamente.");
+            }).finally(() => {
+                ventaEnProceso = false;
+                if (botonProcesar) { botonProcesar.disabled = false; botonProcesar.innerHTML = botonProcesar.dataset.textoAnterior || 'Procesar y Emitir Ticket'; }
+            });
+        }
+
+        // Validación inmediata del documento, nombre y teléfono del cliente.
+        document.addEventListener('DOMContentLoaded', () => {
+            const formCliente = document.querySelector('#modalNuevoClientePos form');
+            const nombre = document.getElementById('nombresCliente');
+            if (nombre) nombre.addEventListener('input', () => { nombre.value = nombre.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, ''); });
+            if (formCliente) formCliente.addEventListener('submit', (e) => {
+                const doc = document.getElementById('numeroDocumentoCliente');
+                const tel = formCliente.querySelector('[name="telefono"]');
+                const correo = formCliente.querySelector('[name="correo"]');
+                const longitud = document.getElementById('tipoDocumentoCliente').value === 'DNI' ? 8 : 11;
+                doc.pattern = '[0-9]{' + longitud + '}'; doc.minLength = longitud; doc.maxLength = longitud;
+                if (!new RegExp('^[0-9]{' + longitud + '}$').test(doc.value) || !/^9[0-9]{8}$/.test(tel.value) || !nombre.value.trim() || !correo.checkValidity()) {
+                    e.preventDefault(); formCliente.reportValidity();
+                }
+            });
+        });
+
+        function actualizarValidacionDocumento(select) {
+            const input = document.getElementById('numeroDocumentoCliente');
+            const esRuc = select.value === 'RUC';
+            const n = esRuc ? 11 : 8;
+            input.maxLength = n; input.minLength = n; input.pattern = '[0-9]{' + n + '}';
+            input.title = (esRuc ? 'El RUC' : 'El DNI') + ' debe tener exactamente ' + n + ' dígitos';
+            input.placeholder = esRuc ? '20123456789' : '12345678';
+            input.value = input.value.replace(/\D/g, '').slice(0, n);
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            const docSelect = document.getElementById('tipoDocumentoCliente');
+            if (docSelect) actualizarValidacionDocumento(docSelect);
+            const docInput = document.getElementById('numeroDocumentoCliente');
+            if (docInput) docInput.addEventListener('input', () => { docInput.value = docInput.value.replace(/\D/g, ''); });
+            const telInput = document.querySelector('input[name="telefono"]');
+            if (telInput) telInput.addEventListener('input', () => { telInput.value = telInput.value.replace(/\D/g, '').slice(0,9); });
+            // Restaurar carrito temporal del cajero en caso de recarga accidental de página (F5)
+            try {
+                const saved = sessionStorage.getItem('luxe_pos_carrito');
+                if (saved) {
+                    carrito = JSON.parse(saved) || [];
+                    renderizarCarrito();
+                }
+            } catch (e) {
+                carrito = [];
+            }
+        });
+    </script>
+<div class="modal fade" id="modalAvisoPos" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Aviso de venta</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="mensajeAvisoPos"></div><div class="modal-footer"><button class="btn btn-primary" data-bs-dismiss="modal">Entendido</button></div></div></div></div>
+<script>function mostrarAvisoPos(texto){document.getElementById('mensajeAvisoPos').textContent=texto;bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvisoPos')).show();}</script>
+<script>
+(function () {
+  function activar(id) {
+    const seccion = document.getElementById(id);
+    if (!seccion || !seccion.classList.contains('seccion-sistema')) return;
+    document.querySelectorAll('.seccion-sistema').forEach(el => {
+      el.classList.toggle('activa', el === seccion);
+      el.style.display = el === seccion ? 'block' : 'none';
+    });
+    document.querySelectorAll('.menu-item[data-section]').forEach(el => {
+      const activo = el.dataset.section === id;
+      el.classList.toggle('activo', activo);
+      if (activo) el.setAttribute('aria-current','page');
+      else el.removeAttribute('aria-current');
+    });
+    const titulos = {dashboard:'Dashboard',productos:'Catálogo de Prendas',stock:'Control de Stock',ventas:'Historial de Ventas',clientes:'Gestión de Clientes',vendedores:'Administrar vendedores',seguridad:'Seguridad de la cuenta',terminal:'Terminal de Venta',misVentas:'Mis Ventas del Día',seguridadVendedor:'Seguridad de la cuenta'};
+    const titulo = document.getElementById('tituloSeccion');
+    if (titulo) titulo.textContent = titulos[id] || titulo.textContent;
+  }
+  document.addEventListener('click', function(e) {
+    const enlace = e.target.closest('.menu-item[data-section]');
+    if (!enlace) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const id = enlace.dataset.section;
+    activar(id);
+    history.replaceState(null,'','#'+encodeURIComponent(id));
+  }, true);
+  document.addEventListener('DOMContentLoaded', function() {
+    const id = decodeURIComponent(location.hash.substring(1));
+    const inicial = document.getElementById(id)?.classList.contains('seccion-sistema') ? id :
+      (document.querySelector('.seccion-sistema.activa') || document.querySelector('.seccion-sistema'))?.id;
+    if (inicial) activar(inicial);
+  });
+  window.addEventListener('hashchange',function(){activar(decodeURIComponent(location.hash.substring(1)));});
+})();
+</script>
+<script>
+// Evita envíos dobles de formularios normales (productos, clientes, usuarios, stock, contraseñas).
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('form[method="post"], form[method="POST"]').forEach(form => {
+    form.addEventListener('submit', event => {
+      if (event.defaultPrevented || !form.checkValidity()) return;
+      if (form.dataset.enviando === 'si') { event.preventDefault(); return; }
+      form.dataset.enviando = 'si';
+      const botones = form.querySelectorAll('button[type="submit"],input[type="submit"]');
+      // No deshabilitar antes del envío: el botón pulsado podría aportar name/value.
+      setTimeout(() => botones.forEach(b => b.disabled = true), 0);
+    });
+  });
+});
+</script>
+</body>
+</html>
