@@ -1,0 +1,3 @@
+package com.luxe.store.repository;
+import com.luxe.store.model.Cliente; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*;
+public interface ClienteRepository extends JpaRepository<Cliente,Long> { List<Cliente> findByEstadoIgnoreCase(String estado); Optional<Cliente> findByNumeroDocumento(String numeroDocumento); default List<Cliente> findByEstado(String estado){return findByEstadoIgnoreCase(estado);} }
