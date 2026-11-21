@@ -17,3 +17,4 @@ public class ArqueoCaja {
  @Column(nullable=false,length=25) public String estado;
 public ArqueoCaja() {
 }
+}
