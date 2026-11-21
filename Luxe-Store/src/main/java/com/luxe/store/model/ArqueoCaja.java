@@ -15,5 +15,5 @@ public class ArqueoCaja {
  @Column(nullable=false) public boolean forzoso;
  @Column(nullable=false) public boolean definitivo;
  @Column(nullable=false,length=25) public String estado;
- protected ArqueoCaja() {}
+public ArqueoCaja() {
 }
